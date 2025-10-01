@@ -1,4 +1,4 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PermissionNotFoundException } from 'src/common/exceptions';
 import { PermissionConflict } from 'src/common/exceptions/permission-conflict.exception';
@@ -55,19 +55,21 @@ export class PermissionsService {
 	}
 
 
-	async update(id: number, updatePermissionDto:UpdatePermissionDto): Promise<Permission | void> {
+	async update(id: number, updatePermissionDto:UpdatePermissionDto): Promise<Permission> {
 
-		if(updatePermissionDto.permissionName === undefined) throw new PermissionNotFoundException()
+		if(!updatePermissionDto.permissionName) throw new BadRequestException()
 
 		const exists = await this.permissionRepository.exists({
 			where:{permissionName: updatePermissionDto.permissionName}
 		})
 
+		if(exists) throw new PermissionConflict(updatePermissionDto.permissionName)
 
-		// validar si con las pipes que validan el input se resuelve el prolblema
-		if(exists && updatePermissionDto.permissionName) throw new PermissionConflict(updatePermissionDto.permissionName)
+		const result = await this.permissionRepository.update(id,updatePermissionDto)
 
-
+		if(!result.affected) throw new PermissionNotFoundException(id)
+		
+		return this.findOne(id)
 
 	}
 
