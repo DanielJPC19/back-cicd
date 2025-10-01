@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 import { Role } from './role.entity';
 
 
@@ -22,20 +22,20 @@ export class User {
 	@Column({ nullable: false, unique: false })
 		phoneNumber: string;
 
-	@Column({ nullable: false, unique: false })
+	@Column({ nullable: true, unique: false })
 		address: string;
 
-	@Column({ nullable: false, unique: false })
+	@Column({ nullable: false, unique: false , default: false})
 		isDeleted: boolean;
 
-	@Column({ nullable: false, unique: false })
+	@Column({ nullable: true, unique: false })
 		profilePicture: string;
 
-	@Column({ nullable: false, unique: false })
-		createdAt: Date;
+  	@CreateDateColumn({ type: 'timestamp' })
+  		createdAt: Date;
 
-	@Column({ nullable: false, unique: false })
-		updatedAt: Date;
+  	@UpdateDateColumn({ type: 'timestamp' })	
+  		updatedAt: Date;
 
 	@ManyToOne(() => Role,(role) => role.users, {eager: true})
 	@JoinColumn({name: 'role_id'})
