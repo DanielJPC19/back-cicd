@@ -8,8 +8,8 @@ export class Permission {
 	@PrimaryGeneratedColumn()
 		id: number
 	
-	@Column({nullable: false, unique: false})
-		permmissionName: string
+	@Column({nullable: false, unique: true})
+		permissionName: string
 
 
 
