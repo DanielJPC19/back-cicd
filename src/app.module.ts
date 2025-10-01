@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './core/auth/auth.module';
+import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 
 type SupportedDbTypes =
 	| 'mysql'
@@ -29,6 +30,9 @@ type SupportedDbTypes =
 				database: configService.get<string>('DB_DATABASE') ?? 'vet',
 				synchronize: configService.get<boolean>('DB_SYNCHRONIZE') ?? false,
 				entities: [__dirname + '/**/*.entity{.ts,.js}'],
+				namingStrategy: new SnakeNamingStrategy(),
+
+
 			}),
 		}),
 
