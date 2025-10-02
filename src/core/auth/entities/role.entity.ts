@@ -1,4 +1,4 @@
-import { Column, Entity, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { Permission } from './permission.entity';
 import { User } from "./user.entity";
 
@@ -19,6 +19,11 @@ export class Role {
 	@OneToMany(() => User, (user) => user.role)
 		users: User[]
 
+  	@CreateDateColumn({ type: 'timestamp' })
+  		createdAt: Date;
+
+  	@UpdateDateColumn({ type: 'timestamp' })	
+  		updatedAt: Date;
 
 	@ManyToMany(() => Permission, { eager: true })
 	@JoinTable({

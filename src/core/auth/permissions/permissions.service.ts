@@ -1,4 +1,4 @@
-import { BadRequestException, ConflictException, Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PermissionNotFoundException } from 'src/common/exceptions';
 import { PermissionConflict } from 'src/common/exceptions/permission-conflict.exception';
@@ -57,7 +57,6 @@ export class PermissionsService {
 
 	async update(id: number, updatePermissionDto:UpdatePermissionDto): Promise<Permission> {
 
-		if(!updatePermissionDto.permissionName) throw new BadRequestException()
 
 		const exists = await this.permissionRepository.exists({
 			where:{permissionName: updatePermissionDto.permissionName}
