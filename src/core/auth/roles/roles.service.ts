@@ -81,7 +81,7 @@ export class RolesService {
 
 	async removeById(id: number): Promise<void> {
 
-		const result = await this.roleRepository.delete(id)
+		const result = await this.roleRepository.softDelete(id)
 		if(!result.affected) throw new RoleNotFoundException(id)
 		
 		return
@@ -91,7 +91,7 @@ export class RolesService {
 
 	async removeByName(roleName: string): Promise<void>{
 
-		const result = await this.roleRepository.delete(roleName)
+		const result = await this.roleRepository.softDelete({roleName: roleName})
 		if(!result.affected) throw new RoleNotFoundException(roleName)
 		
 		return

@@ -86,7 +86,7 @@ export class UsersService {
 
 	async removeByEmail(email: string): Promise<void>{
 
-		const result = await this.userRepository.delete({ email: email })
+		const result = await this.userRepository.softDelete({ email: email })
 		if(!result.affected) throw new UserNotFoundException(email)
 		
 		return

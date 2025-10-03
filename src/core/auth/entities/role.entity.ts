@@ -1,4 +1,4 @@
-import { Column, CreateDateColumn, Entity, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { Permission } from './permission.entity';
 import { User } from "./user.entity";
 
@@ -24,6 +24,11 @@ export class Role {
 
   	@UpdateDateColumn({ type: 'timestamp' })	
   		updatedAt: Date;
+
+
+
+  	@DeleteDateColumn()
+  		deletedAt?: Date;
 
 	@ManyToMany(() => Permission, { eager: true })
 	@JoinTable({

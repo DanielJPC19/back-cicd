@@ -1,4 +1,4 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm"
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm"
 
 
 @Entity('permissions')
@@ -17,5 +17,9 @@ export class Permission {
 
   	@UpdateDateColumn({ type: 'timestamp' })	
   		updatedAt: Date;
+
+
+  	@DeleteDateColumn()
+  		deletedAt?: Date;
 
 }

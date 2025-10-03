@@ -74,7 +74,7 @@ export class PermissionsService {
 
 	async removeById(id: number): Promise<void> {
 
-		const result = await this.permissionRepository.delete(id)
+		const result = await this.permissionRepository.softDelete(id)
 		if(!result.affected) throw new PermissionNotFoundException(id)
 		
 		return
@@ -84,7 +84,7 @@ export class PermissionsService {
 
 	async removeByName(permissionName: string): Promise<void>{
 
-		const result = await this.permissionRepository.delete(permissionName)
+		const result = await this.permissionRepository.softDelete({permissionName:permissionName})
 		if(!result.affected) throw new PermissionNotFoundException(permissionName)
 		
 		return
