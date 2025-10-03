@@ -12,7 +12,7 @@ export class UserConflict extends ConflictException {
 			message = `User with ID ${user} already exists`;
 		
 		} else {
-			message = `User with name "${user}" already exists`;
+			message = `User with email "${user}" already exists`;
 		}
 
 		super({

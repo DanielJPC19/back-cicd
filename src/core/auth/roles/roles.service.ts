@@ -89,17 +89,6 @@ export class RolesService {
 
 	}
 
-	async removeByName(roleName: string): Promise<void>{
-
-		const result = await this.roleRepository.softDelete({roleName: roleName})
-		if(!result.affected) throw new RoleNotFoundException(roleName)
-		
-		return
-
-	}
-
-
-
 
 	async findAll():Promise<void>{
 

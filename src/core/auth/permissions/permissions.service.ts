@@ -82,14 +82,6 @@ export class PermissionsService {
 
 	}
 
-	async removeByName(permissionName: string): Promise<void>{
-
-		const result = await this.permissionRepository.softDelete({permissionName:permissionName})
-		if(!result.affected) throw new PermissionNotFoundException(permissionName)
-		
-		return
-
-	}
 
 	/* 	async findAll(): Promise<Permission> {
 

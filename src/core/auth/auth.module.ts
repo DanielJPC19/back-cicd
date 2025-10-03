@@ -1,20 +1,35 @@
 import { Module } from '@nestjs/common';
-import { UsersController } from './users/users.controller';
-import { UsersService } from './users/users.service';
-import { RolesController } from './roles/roles.controller';
-import { RolesService } from './roles/roles.service';
-import { PermissionsController } from './permissions/permissions.controller';
-import { PermissionsService } from './permissions/permissions.service';
+import { ConfigService } from '@nestjs/config';
+import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AuthService } from '../auth.service';
 import { Permission } from './entities/permission.entity';
 import { Role } from './entities/role.entity';
 import { User } from './entities/user.entity';
-import { AuthService } from '../auth.service';
+import { JwtStrategy } from './jwt.strategy';
+import { PermissionsController } from './permissions/permissions.controller';
+import { PermissionsService } from './permissions/permissions.service';
+import { RolesController } from './roles/roles.controller';
+import { RolesService } from './roles/roles.service';
+import { UsersController } from './users/users.controller';
+import { UsersService } from './users/users.service';
+import { AuthController } from '../auth.controller';
 
 @Module({
-	controllers: [UsersController, RolesController, PermissionsController],
-	providers: [AuthService,UsersService, RolesService, PermissionsService],
-	imports: [TypeOrmModule.forFeature([User,Role,Permission])],
+	controllers: [UsersController, RolesController, PermissionsController, AuthController],
+	providers: [AuthService,UsersService, RolesService, PermissionsService,JwtStrategy],
+	imports: [TypeOrmModule.forFeature([User,Role,Permission]),
+		JwtModule.registerAsync({
+			inject: [ConfigService],
+			useFactory: (config: ConfigService) => ({
+				secret: config.get<string>('JWT_SECRET') || 'defaultSecret',
+				signOptions: {
+					expiresIn:
+                        config.get<string | number>('JWT_EXPIRES_IN') || '1h',
+				},
+			}),
+		}),
+	],
 	//exports: [],
 })
 export class AuthModule {}

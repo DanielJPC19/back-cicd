@@ -11,7 +11,7 @@ export class User {
 		email: string;
 
 	@Column({ nullable: false, unique: false })
-		fistName: string;
+		firstName: string;
 
 	@Column({ nullable: false, unique: false })
 		lastName: string;
@@ -37,9 +37,8 @@ export class User {
   	@UpdateDateColumn({ type: 'timestamp' })	
   		updatedAt: Date;
 
-
   	@DeleteDateColumn()
-  		deletedAt?: Date;
+  		deletedAt: Date;
 		
 	@ManyToOne(() => Role,(role) => role.users, {eager: true})
 	@JoinColumn({name: 'role_id'})

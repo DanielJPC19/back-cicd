@@ -51,11 +51,5 @@ export class RolesController {
 	}
 
 
-	@Delete(':roleName')
-	@HttpCode(204)
-	async removeByName(@Param('roleName') roleName: string) {
-		await this.roleService.removeByName(roleName);
-	}
-
 }
 

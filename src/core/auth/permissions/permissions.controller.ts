@@ -48,9 +48,4 @@ export class PermissionsController {
 	}
 
 
-	@Delete(':permissionName')
-	async removeByName(@Param('permissionName') permissionName: string) {
-		await this.permissionService.removeByName(permissionName);
-	}
-
 }

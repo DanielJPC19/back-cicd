@@ -51,13 +51,6 @@ export class UsersController {
 	}
 
 
-	@Delete(':email')
-	@HttpCode(204)
-	async removeByEmail(@Param('email') email: string) {
-		await this.userService.removeByEmail(email);
-	}
-
-
 
 
 }
