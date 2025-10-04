@@ -1,8 +1,11 @@
-import { Body, Controller, Delete, Get, HttpCode, Param, ParseIntPipe, Patch, Post } from '@nestjs/common';
-import { UsersService } from './users.service';
+import { Body, Controller, Delete, Get, HttpCode, Param, ParseIntPipe, Patch, Post, UseGuards } from '@nestjs/common';
+import { AddRoleDto } from '../dto/add-roleToUser.dto';
 import { CreateUserDto } from '../dto/create-user.dto';
 import { UpdateUserDto } from '../dto/update-user.dto';
-import { AddRoleDto } from '../dto/add-roleToUser.dto';
+import { UsersService } from './users.service';
+import { AuthGuard } from '@nestjs/passport';
+import { PermissionsGuard } from '../guards/permissions.guard';
+import { Permissions } from '../decorators/permissions.decorator';
 
 @Controller('users')
 export class UsersController {
@@ -18,11 +21,15 @@ export class UsersController {
 		const result = await this.userService.create(createUserDto);
 		return result;
 	}
-	/* 	@Get()
+	
+
+	@Get()
+	@UseGuards(AuthGuard('jwt'), PermissionsGuard)
+    @Permissions('Updated Permission 1')
 	async findAll() {
 		const result = await this.userService.findAll();
 		return result;
-	} */
+	}
 
 	@Get(':id')
 	async findOne(@Param('id', ParseIntPipe) id: number) {

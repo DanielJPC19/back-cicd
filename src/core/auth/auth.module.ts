@@ -14,10 +14,11 @@ import { RolesService } from './roles/roles.service';
 import { UsersController } from './users/users.controller';
 import { UsersService } from './users/users.service';
 import { AuthController } from '../auth.controller';
+import { PermissionsGuard } from './guards/permissions.guard';
 
 @Module({
 	controllers: [UsersController, RolesController, PermissionsController, AuthController],
-	providers: [AuthService,UsersService, RolesService, PermissionsService,JwtStrategy],
+	providers: [AuthService,UsersService, RolesService, PermissionsService,JwtStrategy,PermissionsGuard],
 	imports: [TypeOrmModule.forFeature([User,Role,Permission]),
 		JwtModule.registerAsync({
 			inject: [ConfigService],

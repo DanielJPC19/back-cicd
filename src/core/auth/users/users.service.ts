@@ -4,10 +4,10 @@ import * as bcrypt from 'bcrypt';
 import { RoleNotFoundException, UserNotFoundException } from 'src/common/exceptions';
 import { UserConflict } from 'src/common/exceptions/user-conflict.exception';
 import { Repository } from 'typeorm';
+import { AddRoleDto } from '../dto/add-roleToUser.dto';
 import { CreateUserDto } from '../dto/create-user.dto';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import { User } from '../entities/user.entity';
-import { AddRoleDto } from '../dto/add-roleToUser.dto';
 import { RolesService } from '../roles/roles.service';
 
 @Injectable()
@@ -67,12 +67,6 @@ export class UsersService {
 
 	async update(id:number,updateUserDto:UpdateUserDto):Promise<User>{
 
-		const exists = await this.userRepository.exists({
-			where:{email:updateUserDto.email}
-		})
-
-		if(exists) throw new UserConflict(updateUserDto.email)
-
 		const result = await this.userRepository.update(id,updateUserDto)
 
 		if(!result.affected) throw new UserNotFoundException(id)
@@ -115,8 +109,9 @@ export class UsersService {
 
 
 
+	async findAll():Promise<User[]>{
 
-	async findAll():Promise<void>{
+		return this.userRepository.find()
 
 	}
 
