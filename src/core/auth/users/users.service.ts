@@ -1,19 +1,22 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
-import { UserNotFoundException } from 'src/common/exceptions';
+import { RoleNotFoundException, UserNotFoundException } from 'src/common/exceptions';
 import { UserConflict } from 'src/common/exceptions/user-conflict.exception';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from '../dto/create-user.dto';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import { User } from '../entities/user.entity';
+import { AddRoleDto } from '../dto/add-roleToUser.dto';
+import { RolesService } from '../roles/roles.service';
 
 @Injectable()
 export class UsersService {
 
 	constructor(
 		@InjectRepository(User)
-		private readonly userRepository: Repository<User>
+		private readonly userRepository: Repository<User>,
+		private readonly roleService: RolesService
 	){}
 	
 	async create(createUserDto:CreateUserDto):Promise<User>{
@@ -91,6 +94,23 @@ export class UsersService {
 
 	}
 
+	async addOrSetRole(addRoleDto:AddRoleDto):Promise<void>{
+
+		const user = await this.findOne(addRoleDto.userId)
+
+		if(!user) throw new UserNotFoundException(addRoleDto.userId)
+
+		const role = await this.roleService.findOne(addRoleDto.roleId)
+
+		if(!role) throw new RoleNotFoundException(addRoleDto.roleId)
+	
+		user.role = role
+
+		await this.userRepository.save(user)
+
+		return
+		
+	}
 
 
 

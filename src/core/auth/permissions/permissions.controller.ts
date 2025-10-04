@@ -47,5 +47,4 @@ export class PermissionsController {
 		await this.permissionService.removeById(id);
 	}
 
-
 }

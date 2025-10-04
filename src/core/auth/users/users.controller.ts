@@ -2,6 +2,7 @@ import { Body, Controller, Delete, Get, HttpCode, Param, ParseIntPipe, Patch, Po
 import { UsersService } from './users.service';
 import { CreateUserDto } from '../dto/create-user.dto';
 import { UpdateUserDto } from '../dto/update-user.dto';
+import { AddRoleDto } from '../dto/add-roleToUser.dto';
 
 @Controller('users')
 export class UsersController {
@@ -51,6 +52,10 @@ export class UsersController {
 	}
 
 
+	@Post('role')
+	async addOrSetRole(@Body() addRoleDto:AddRoleDto){
+		return this.userService.addOrSetRole(addRoleDto)
 
+	}
 
 }

@@ -1,12 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Role } from '../entities/role.entity';
-import { Repository } from 'typeorm';
-import { PermissionsService } from '../permissions/permissions.service';
-import { CreateRoleDto } from '../dto/create-role.dto';
+import { PermissionNotFoundException, RoleNotFoundException } from 'src/common/exceptions';
 import { RoleConflict } from 'src/common/exceptions/role-conflict.exception';
-import { RoleNotFoundException } from 'src/common/exceptions';
+import { Repository } from 'typeorm';
+import { AddPermissionDto } from '../dto/add-permissionToRole.dto';
+import { CreateRoleDto } from '../dto/create-role.dto';
 import { UpdateRoleDto } from '../dto/update-role.dto';
+import { Role } from '../entities/role.entity';
+import { PermissionsService } from '../permissions/permissions.service';
 
 @Injectable()
 export class RolesService {
@@ -86,6 +87,24 @@ export class RolesService {
 		
 		return
 
+
+	}
+
+
+	async addPermission(addPermissionDto:AddPermissionDto):Promise<void>{
+
+
+		const role = await this.findOne(addPermissionDto.roleId)		
+		if(!role) throw new RoleNotFoundException(addPermissionDto.roleId)
+
+		const permission = await this.permissionService.findOne(addPermissionDto.permissionId)		
+		if(!permission) throw new PermissionNotFoundException(addPermissionDto.permissionId)
+		
+		if (!role.permissions.some(p => p.id === permission.id)) {
+			role.permissions.push(permission);
+			await this.roleRepository.save(role);
+		}
+		return 
 
 	}
 

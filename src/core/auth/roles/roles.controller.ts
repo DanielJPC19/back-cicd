@@ -1,5 +1,6 @@
 
 import { Body, Controller, Delete, Get, HttpCode, Param, ParseIntPipe, Patch, Post } from '@nestjs/common';
+import { AddPermissionDto } from '../dto/add-permissionToRole.dto';
 import { CreateRoleDto } from '../dto/create-role.dto';
 import { UpdateRoleDto } from '../dto/update-role.dto';
 import { RolesService } from './roles.service';
@@ -50,6 +51,9 @@ export class RolesController {
 		await this.roleService.removeById(id);
 	}
 
+	@Post('permission')
+	addPermission(@Body() addPermissionDto: AddPermissionDto) {
+		return this.roleService.addPermission(addPermissionDto);
 
+	}
 }
-
