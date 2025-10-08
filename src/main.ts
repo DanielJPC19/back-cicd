@@ -1,8 +1,8 @@
+import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { error } from 'console';
 import { AppModule } from './app.module';
-import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
 
@@ -13,6 +13,16 @@ async function bootstrap() {
 		.setTitle('Veterinary API')
 		.setDescription('API documentation for the veterinary clinic')
 		.setVersion('1.0')
+		.addBearerAuth(
+			{
+				type: 'http',
+				scheme: 'bearer',
+				bearerFormat: 'JWT',
+				name: 'Authorization',
+				in: 'header',
+			},
+			'jwt-auth', 
+		)
 		.build();
 
 	// Create Swagger document

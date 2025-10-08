@@ -1,7 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsInt, Min } from "class-validator";
 
-export class UpdateRoleDto {
+export class AddRoleDto {
     @ApiProperty({ description: "ID del usuario", example: 1 })
     @Min(1)
     @IsInt()

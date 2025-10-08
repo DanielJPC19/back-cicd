@@ -5,7 +5,7 @@ import { CreateRoleDto } from './create-role.dto';
 
 export class UpdateRoleDto extends PartialType(CreateRoleDto) {
 
-  @ApiProperty({ description: 'Nombre del rol', example: 'admin2' })
+  @ApiProperty({ description: 'Nombre del rol', example: 'admin' })
   @IsString()
   @IsNotEmpty()
   	roleName: string;

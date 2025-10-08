@@ -1,13 +1,14 @@
 import { Body, Controller, Delete, Get, HttpCode, Param, ParseIntPipe, Patch, Post, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { Permissions } from '../decorators/permissions.decorator';
 import { CreateUserDto } from '../dto/create-user.dto';
-import { UpdateRoleDto } from '../dto/update-user-role.dto';
+import { AddRoleDto } from '../dto/update-user-role.dto';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import { PermissionsGuard } from '../guards/permissions.guard';
 import { UsersService } from './users.service';
 
+@ApiBearerAuth('jwt-auth')
 @UseGuards(AuthGuard('jwt'), PermissionsGuard)
 @Controller('users')
 export class UsersController {
@@ -21,6 +22,7 @@ export class UsersController {
 	@ApiOperation({ summary: 'Crear un usuario' })
 	@ApiBody({ type: CreateUserDto })
 	@ApiResponse({ status: 201, description: 'Usuario creado correctamente.' })
+	@ApiResponse({ status: 400, description: 'Datos inválidos o faltantes.' })
 	@ApiResponse({ status: 401, description: 'No autenticado — JWT inválido o no provisto.' })
 	@ApiResponse({ status: 403, description: 'Permisos insuficientes' })
 	@ApiResponse({ status: 409, description: 'Conflicto, ya existe un usuario con ese email.' })
@@ -58,6 +60,7 @@ export class UsersController {
 	@ApiOperation({ summary: 'Actualizar un usuario' })
 	@ApiBody({ type: UpdateUserDto })
 	@ApiResponse({ status: 200, description: 'Usuario actualizado correctamente.' })
+	@ApiResponse({ status: 400, description: 'Datos inválidos o faltantes.' })
 	@ApiResponse({ status: 401, description: 'No autenticado — JWT inválido o no provisto.' })
 	@ApiResponse({ status: 403, description: 'Permisos insuficientes' })
 	@ApiResponse({ status: 404, description: 'Usuario no encontrado.' })
@@ -85,15 +88,16 @@ export class UsersController {
 	
 	
 	@ApiOperation({ summary: 'Asignar o cambiar rol de un usuario' })
-	@ApiBody({ type: UpdateRoleDto })
+	@ApiBody({ type: AddRoleDto })
 	@ApiResponse({ status: 200, description: 'Rol asignado/cambiado correctamente.' })
+  	@ApiResponse({ status: 400, description: 'Datos inválidos o faltantes.' })
 	@ApiResponse({ status: 401, description: 'No autenticado — JWT inválido o no provisto.' })
 	@ApiResponse({ status: 403, description: 'Permisos insuficientes' })
 	@ApiResponse({ status: 404, description: 'Usuario o rol no encontrado.' })
     @Permissions('user_add_role')
 	@Patch('role')
-	async setUserRole(@Body() updateRoleDto:UpdateRoleDto){
-    	return this.userService.setUserRole(updateRoleDto)
+	async setUserRole(@Body() addRoleDto:AddRoleDto){
+    	return this.userService.setUserRole(addRoleDto)
 
 	}
 

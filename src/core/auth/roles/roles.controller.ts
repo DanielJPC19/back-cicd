@@ -1,15 +1,16 @@
 
 import { Body, Controller, Delete, Get, HttpCode, Param, ParseIntPipe, Patch, Post, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Permissions } from '../decorators/permissions.decorator';
 import { AddPermissionDto } from '../dto/add-permissionToRole.dto';
 import { CreateRoleDto } from '../dto/create-role.dto';
 import { UpdateRoleDto } from '../dto/update-role.dto';
 import { PermissionsGuard } from '../guards/permissions.guard';
 import { RolesService } from './roles.service';
-import { ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
 
-
+@ApiBearerAuth('jwt-auth')
+@ApiTags('Roles')
 @UseGuards(AuthGuard('jwt'), PermissionsGuard)
 @Controller('roles')
 export class RolesController {
@@ -20,6 +21,7 @@ export class RolesController {
 	@ApiOperation({ summary: 'Crear un rol' })
 	@ApiBody({ type: CreateRoleDto })
 	@ApiResponse({ status: 201, description: 'Rol creado correctamente.' })
+	@ApiResponse({ status: 400, description: 'Datos inválidos o faltantes.' })
 	@ApiResponse({ status: 401, description: 'No autenticado — JWT inválido o no provisto.' })
 	@ApiResponse({ status: 403, description: 'Permisos insuficientes' })
 	@ApiResponse({ status: 409, description: 'Conflicto, ya existe un rol con ese nombre.' })
@@ -49,6 +51,7 @@ export class RolesController {
 	@ApiOperation({ summary: 'Actualizar un rol' })
 	@ApiBody({ type: UpdateRoleDto })
 	@ApiResponse({ status: 200, description: 'Rol actualizado correctamente.' })
+ 	@ApiResponse({ status: 400, description: 'Datos inválidos o faltantes.' })
 	@ApiResponse({ status: 401, description: 'No autenticado — JWT inválido o no provisto.' })
 	@ApiResponse({ status: 403, description: 'Permisos insuficientes' })
 	@ApiResponse({ status: 404, description: 'Rol no encontrado.' })
@@ -73,10 +76,11 @@ export class RolesController {
 	async removeById(@Param('id', ParseIntPipe) id: number) {
 		await this.roleService.removeById(id);
 	}
-	
+
 	@ApiOperation({ summary: 'Agregar permisos a un rol' })
 	@ApiBody({ type: AddPermissionDto })
 	@ApiResponse({ status: 200, description: 'Permisos agregados correctamente al rol.' })
+  	@ApiResponse({ status: 400, description: 'Datos inválidos o faltantes.' })
 	@ApiResponse({ status: 401, description: 'No autenticado — JWT inválido o no provisto.' })
 	@ApiResponse({ status: 403, description: 'Permisos insuficientes' })
 	@ApiResponse({ status: 404, description: 'Rol o permisos no encontrados.' })
