@@ -10,6 +10,7 @@ import { UpdateUserDto } from '../dto/update-user.dto';
 import { User } from '../entities/user.entity';
 import { RolesService } from '../roles/roles.service';
 
+
 @Injectable()
 export class UsersService {
 
@@ -30,8 +31,11 @@ export class UsersService {
 
 		createUserDto.password = await bcrypt.hash(createUserDto.password,10)
 		
-
-		const newUser = this.userRepository.create(createUserDto)
+		const defaultRole = await this.roleService.findByName('user')
+		const newUser = this.userRepository.create({
+			... createUserDto,
+			role: defaultRole
+		})
 		const savedUser = await this.userRepository.save(newUser)
 			
 
@@ -42,36 +46,36 @@ export class UsersService {
 
 	async findByEmail(email: string):Promise<User>{
 
-		const user = await this.userRepository.findOne({
-			where: { email },
-			relations: ['role', 'role.permissions'],
-		})
+    	const user = await this.userRepository.findOne({
+    		where: { email },
+    		relations: ['role', 'role.permissions'],
+    	})
 		
-		if(!user) throw new UserNotFoundException(email)
+    	if(!user) throw new UserNotFoundException(email)
 
 			
-		return user
+    	return user
 	}
 
 
 	async findOne(id:number):Promise<User>{
 
-		const user = await this.userRepository.findOneBy({id})
+    	const user = await this.userRepository.findOneBy({id})
 		
-		if(!user) throw new UserNotFoundException(id)
+    	if(!user) throw new UserNotFoundException(id)
 
 			
-		return user
+    	return user
 	}
 
 
 	async update(id:number,updateUserDto:UpdateUserDto):Promise<User>{
 
-		const result = await this.userRepository.update(id,updateUserDto)
+    	const result = await this.userRepository.update(id,updateUserDto)
 
-		if(!result.affected) throw new UserNotFoundException(id)
+    	if(!result.affected) throw new UserNotFoundException(id)
 
-		return this.findOne(id)
+    	return this.findOne(id)
 
 
 	}
@@ -80,29 +84,29 @@ export class UsersService {
 
 	async removeById(id: number): Promise<void> {
 
-		const result = await this.userRepository.softDelete({id})
-		if(!result.affected) throw new UserNotFoundException(id)
+    	const result = await this.userRepository.softDelete({id})
+    	if(!result.affected) throw new UserNotFoundException(id)
 		
-		return
+    	return
 
 
 	}
 
 	async addOrSetRole(addRoleDto:AddRoleDto):Promise<void>{
 
-		const user = await this.findOne(addRoleDto.userId)
+    	const user = await this.findOne(addRoleDto.userId)
 
-		if(!user) throw new UserNotFoundException(addRoleDto.userId)
+    	if(!user) throw new UserNotFoundException(addRoleDto.userId)
 
-		const role = await this.roleService.findOne(addRoleDto.roleId)
+    	const role = await this.roleService.findOne(addRoleDto.roleId)
 
-		if(!role) throw new RoleNotFoundException(addRoleDto.roleId)
+    	if(!role) throw new RoleNotFoundException(addRoleDto.roleId)
 	
-		user.role = role
+    	user.role = role
 
-		await this.userRepository.save(user)
+    	await this.userRepository.save(user)
 
-		return
+    	return
 		
 	}
 
@@ -111,7 +115,7 @@ export class UsersService {
 
 	async findAll():Promise<User[]>{
 
-		return this.userRepository.find()
+    	return this.userRepository.find()
 
 	}
 

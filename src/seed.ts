@@ -47,9 +47,9 @@ async function seed() {
 
 	console.log('Creando permisos...');
 	const permissions = [
-		'user_create', 'user_read', 'user_update', 'user_delete',
+		'user_create', 'user_read', 'user_update', 'user_delete','user_add_role',
 		'permission_create', 'permission_read', 'permission_update', 'permission_delete',
-		'role_create', 'role_read', 'role_update', 'role_delete',
+		'role_create', 'role_read', 'role_update', 'role_delete','role_add_permission',
 	].map((name) => AppDataSource.manager.create(Permission, { permissionName: name }));
 
 	await AppDataSource.manager.save(permissions);
