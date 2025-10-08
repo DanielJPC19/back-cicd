@@ -5,7 +5,7 @@ import { RoleNotFoundException, UserNotFoundException } from 'src/common/excepti
 import { UserConflict } from 'src/common/exceptions/user-conflict.exception';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from '../dto/create-user.dto';
-import { AddRoleDto } from '../dto/update-user-role.dto';
+import { SetUserRoleDto } from '../dto/update-user-role.dto';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import { User } from '../entities/user.entity';
 import { RolesService } from '../roles/roles.service';
@@ -92,15 +92,15 @@ export class UsersService {
 
 	}
 
-	async setUserRole(addRoleDto:AddRoleDto):Promise<void>{
+	async setUserRole(id: number,setUserRoleDto:SetUserRoleDto):Promise<void>{
 
-    	const user = await this.findOne(addRoleDto.userId)
+    	const user = await this.findOne(id)
 
-    	if(!user) throw new UserNotFoundException(addRoleDto.userId)
+    	if(!user) throw new UserNotFoundException(id)
 
-    	const role = await this.roleService.findOne(addRoleDto.roleId)
+    	const role = await this.roleService.findOne(setUserRoleDto.roleId)
 
-    	if(!role) throw new RoleNotFoundException(addRoleDto.roleId)
+    	if(!role) throw new RoleNotFoundException(setUserRoleDto.roleId)
 	
     	user.role = role
 
