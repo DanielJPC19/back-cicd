@@ -7,6 +7,7 @@ import { CreateRoleDto } from '../dto/create-role.dto';
 import { UpdateRoleDto } from '../dto/update-role.dto';
 import { PermissionsGuard } from '../guards/permissions.guard';
 import { RolesService } from './roles.service';
+import { ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
 
 
 @UseGuards(AuthGuard('jwt'), PermissionsGuard)
@@ -16,7 +17,12 @@ export class RolesController {
 		private readonly roleService: RolesService
 
 	){}
-
+	@ApiOperation({ summary: 'Crear un rol' })
+	@ApiBody({ type: CreateRoleDto })
+	@ApiResponse({ status: 201, description: 'Rol creado correctamente.' })
+	@ApiResponse({ status: 401, description: 'No autenticado — JWT inválido o no provisto.' })
+	@ApiResponse({ status: 403, description: 'Permisos insuficientes' })
+	@ApiResponse({ status: 409, description: 'Conflicto, ya existe un rol con ese nombre.' })
 	@Permissions('role_create')
 	@Post()	
 	async create(@Body() createRoleDto: CreateRoleDto) {
@@ -28,7 +34,11 @@ export class RolesController {
 		const result = await this.roleService.findAll();
 		return result;
 	} */
-
+	@ApiOperation({ summary: 'Obtener un rol por ID' })
+	@ApiResponse({ status: 200, description: 'Rol encontrado correctamente.' })
+	@ApiResponse({ status: 401, description: 'No autenticado — JWT inválido o no provisto.' })
+	@ApiResponse({ status: 403, description: 'Permisos insuficientes' })
+	@ApiResponse({ status: 404, description: 'Rol no encontrado.' })
 	@Permissions('role_read')
 	@Get(':id')
 	async findOne(@Param('id', ParseIntPipe) id: number) {
@@ -36,6 +46,12 @@ export class RolesController {
 		return result;
 	}
 
+	@ApiOperation({ summary: 'Actualizar un rol' })
+	@ApiBody({ type: UpdateRoleDto })
+	@ApiResponse({ status: 200, description: 'Rol actualizado correctamente.' })
+	@ApiResponse({ status: 401, description: 'No autenticado — JWT inválido o no provisto.' })
+	@ApiResponse({ status: 403, description: 'Permisos insuficientes' })
+	@ApiResponse({ status: 404, description: 'Rol no encontrado.' })
 	@Permissions('role_update')
 	@Patch(':id')
 	async update(
@@ -46,13 +62,24 @@ export class RolesController {
 		return result;
 	}
 
+	@ApiOperation({ summary: 'Eliminar un rol' })
+	@ApiResponse({ status: 204, description: 'Rol eliminado correctamente.' })
+	@ApiResponse({ status: 401, description: 'No autenticado — JWT inválido o no provisto.' })
+	@ApiResponse({ status: 403, description: 'Permisos insuficientes' })
+	@ApiResponse({ status: 404, description: 'Rol no encontrado.' })
 	@Permissions('role_delete')
 	@Delete(':id')
 	@HttpCode(204)
 	async removeById(@Param('id', ParseIntPipe) id: number) {
 		await this.roleService.removeById(id);
 	}
-
+	
+	@ApiOperation({ summary: 'Agregar permisos a un rol' })
+	@ApiBody({ type: AddPermissionDto })
+	@ApiResponse({ status: 200, description: 'Permisos agregados correctamente al rol.' })
+	@ApiResponse({ status: 401, description: 'No autenticado — JWT inválido o no provisto.' })
+	@ApiResponse({ status: 403, description: 'Permisos insuficientes' })
+	@ApiResponse({ status: 404, description: 'Rol o permisos no encontrados.' })
 	@Permissions('role_add_permission')
 	@Post('permission')
 	addPermission(@Body() addPermissionDto: AddPermissionDto) {
