@@ -4,8 +4,8 @@ import * as bcrypt from 'bcrypt';
 import { RoleNotFoundException, UserNotFoundException } from 'src/common/exceptions';
 import { UserConflict } from 'src/common/exceptions/user-conflict.exception';
 import { Repository } from 'typeorm';
-import { AddRoleDto } from '../dto/add-roleToUser.dto';
 import { CreateUserDto } from '../dto/create-user.dto';
+import { UpdateRoleDto } from '../dto/update-user-role.dto';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import { User } from '../entities/user.entity';
 import { RolesService } from '../roles/roles.service';
@@ -92,15 +92,15 @@ export class UsersService {
 
 	}
 
-	async addOrSetRole(addRoleDto:AddRoleDto):Promise<void>{
+	async setUserRole(updateRoleDto:UpdateRoleDto):Promise<void>{
 
-    	const user = await this.findOne(addRoleDto.userId)
+    	const user = await this.findOne(updateRoleDto.userId)
 
-    	if(!user) throw new UserNotFoundException(addRoleDto.userId)
+    	if(!user) throw new UserNotFoundException(updateRoleDto.userId)
 
-    	const role = await this.roleService.findOne(addRoleDto.roleId)
+    	const role = await this.roleService.findOne(updateRoleDto.roleId)
 
-    	if(!role) throw new RoleNotFoundException(addRoleDto.roleId)
+    	if(!role) throw new RoleNotFoundException(updateRoleDto.roleId)
 	
     	user.role = role
 
