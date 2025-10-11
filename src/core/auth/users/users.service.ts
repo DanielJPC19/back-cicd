@@ -1,9 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
-import { RoleNotFoundException, UserNotFoundException } from 'src/common/exceptions';
-import { UserConflict } from 'src/common/exceptions/user-conflict.exception';
 import { Repository } from 'typeorm';
+import { UserConflict, UserNotFoundException } from '../../../common/exceptions';
 import { CreateUserDto } from '../dto/create-user.dto';
 import { SetUserRoleDto } from '../dto/update-user-role.dto';
 import { UpdateUserDto } from '../dto/update-user.dto';
@@ -100,8 +99,6 @@ export class UsersService {
 
     	const role = await this.roleService.findOne(setUserRoleDto.roleId)
 
-    	if(!role) throw new RoleNotFoundException(setUserRoleDto.roleId)
-	
     	user.role = role
 
     	await this.userRepository.save(user)
