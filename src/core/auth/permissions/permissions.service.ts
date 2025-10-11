@@ -1,7 +1,6 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { PermissionNotFoundException } from 'src/common/exceptions';
-import { PermissionConflict } from 'src/common/exceptions/permission-conflict.exception';
+import { PermissionConflict, PermissionNotFoundException } from '../../../common/exceptions';
 import { Repository } from 'typeorm';
 import { CreatePermissionDto } from '../dto/create-permission.dto';
 import { UpdatePermissionDto } from '../dto/update-permission.dto';

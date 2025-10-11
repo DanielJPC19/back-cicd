@@ -26,7 +26,7 @@ export class PermissionsController {
 	@ApiResponse({ status: 409, description: 'Conflicto — el permiso ya existe.' })
 	@Permissions('permission_create')
 	@Post()	
-	async create(@Body() createPermissionDto: CreatePermissionDto) {
+	async create(@Body() createPermissionDto: CreatePermissionDto){
 		const result = await this.permissionService.create(createPermissionDto);
 		return result;
 	}
@@ -42,7 +42,7 @@ export class PermissionsController {
 	@ApiResponse({ status: 404, description: 'Permiso no encontrado.' })
 	@Permissions('permission_read')
 	@Get(':id')
-	async findOne(@Param('id', ParseIntPipe) id: number) {
+	async findOne(@Param('id', ParseIntPipe) id: number){
 		const result = await this.permissionService.findOne(id);
 		return result;
 	}
@@ -58,8 +58,7 @@ export class PermissionsController {
 	@Patch(':id')
 	async update(
 		@Param('id', ParseIntPipe) id: number,
-		@Body() updatePermissionDto: UpdatePermissionDto,
-	) {
+		@Body() updatePermissionDto: UpdatePermissionDto){
 		const result = await this.permissionService.update(id, updatePermissionDto);
 		return result;
 	}
@@ -70,7 +69,7 @@ export class PermissionsController {
 	@ApiResponse({ status: 404, description: 'Permiso no encontrado.' })
 	@Permissions('permission_delete')
 	@Delete(':id')
-	async removeById(@Param('id', ParseIntPipe) id: number) {
+	async removeById(@Param('id', ParseIntPipe) id: number){
 		await this.permissionService.removeById(id);
 	}
 
