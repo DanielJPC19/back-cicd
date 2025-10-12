@@ -1,0 +1,106 @@
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { DiagnosticNotFoundException } from '../../common/exceptions';
+import { UsersService } from '../../core/auth/users/users.service';
+import { MedicalRecordsService } from '../medical-records/medical-records.service';
+import { CreateDiagnosticDto } from './dto/create-diagnostic.dto';
+import { UpdateDiagnosticDto } from './dto/update-diagnostic.dto';
+import { Diagnostic } from './entities/diagnostic.entity';
+
+@Injectable()
+export class DiagnosticsService {
+
+	constructor(
+		@InjectRepository(Diagnostic)
+		private readonly diagnosticRepository: Repository<Diagnostic>,
+		private readonly medicalRecordsService: MedicalRecordsService,
+		private readonly usersService: UsersService
+	) {}
+
+	async create(createDiagnosticDto: CreateDiagnosticDto): Promise<Diagnostic> {
+		// Verificar que el registro médico existe
+		const medicalRecord = await this.medicalRecordsService.findOne(createDiagnosticDto.medicalRecordId);
+		
+		// Verificar que el veterinario existe
+		const veterinarian = await this.usersService.findOne(createDiagnosticDto.veterinarianId);
+
+		const newDiagnostic = this.diagnosticRepository.create({
+			...createDiagnosticDto,
+			medicalRecord: medicalRecord,
+			veterinarian: veterinarian
+		});
+
+		const savedDiagnostic = await this.diagnosticRepository.save(newDiagnostic);
+		return savedDiagnostic;
+	}
+
+	async findAll(): Promise<Diagnostic[]> {
+		return this.diagnosticRepository.find({
+			relations: ['medicalRecord', 'veterinarian']
+		});
+	}
+
+	async findOne(id: number): Promise<Diagnostic> {
+		const diagnostic = await this.diagnosticRepository.findOne({
+			where: { id },
+			relations: ['medicalRecord', 'veterinarian', 'medicalRecord.pet']
+		});
+
+		if (!diagnostic) {
+			throw new DiagnosticNotFoundException(id);
+		}
+
+		return diagnostic;
+	}
+
+	async findByMedicalRecord(medicalRecordId: number): Promise<Diagnostic[]> {
+		// Verificar que el registro médico existe
+		await this.medicalRecordsService.findOne(medicalRecordId);
+
+		return this.diagnosticRepository.find({
+			where: { medicalRecord: { id: medicalRecordId } },
+			relations: ['medicalRecord', 'veterinarian'],
+			order: { createdAt: 'DESC' }
+		});
+	}
+
+	async findByVeterinarian(veterinarianId: number): Promise<Diagnostic[]> {
+		// Verificar que el veterinario existe
+		await this.usersService.findOne(veterinarianId);
+
+		return this.diagnosticRepository.find({
+			where: { veterinarian: { id: veterinarianId } },
+			relations: ['medicalRecord', 'veterinarian', 'medicalRecord.pet'],
+			order: { createdAt: 'DESC' }
+		});
+	}
+
+	async findBySeverity(severity: string): Promise<Diagnostic[]> {
+		return this.diagnosticRepository.find({
+			where: { severity: severity as any },
+			relations: ['medicalRecord', 'veterinarian', 'medicalRecord.pet'],
+			order: { createdAt: 'DESC' }
+		});
+	}
+
+	async update(id: number, updateDiagnosticDto: UpdateDiagnosticDto): Promise<Diagnostic> {
+		const result = await this.diagnosticRepository.update(id, updateDiagnosticDto);
+
+		if (!result.affected) {
+			throw new DiagnosticNotFoundException(id);
+		}
+
+		return this.findOne(id);
+	}
+
+	async removeById(id: number): Promise<void> {
+		const result = await this.diagnosticRepository.softDelete({ id });
+		
+		if (!result.affected) {
+			throw new DiagnosticNotFoundException(id);
+		}
+
+		return;
+	}
+}
