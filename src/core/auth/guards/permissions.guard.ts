@@ -27,7 +27,7 @@ export class PermissionsGuard implements CanActivate {
 			userPerms.includes(p),
 		);
 		if (!hasEnoughPermissions)
-			throw new ForbiddenException('Permisos insuficientes');
+			throw new ForbiddenException();
 		return true;
 	}
 }

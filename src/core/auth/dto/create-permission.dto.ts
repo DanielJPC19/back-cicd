@@ -1,9 +1,12 @@
+import { ApiProperty } from "@nestjs/swagger";
 import { IsNotEmpty, IsString } from "class-validator";
 
 export class CreatePermissionDto {
-
-	@IsNotEmpty()
-	@IsString()
-		permissionName: string;
+  @ApiProperty({
+  	example: 'user_create',
+  	description: 'Nombre único del permiso que se desea crear.',
+  })
+  @IsNotEmpty()
+  @IsString()
+  	permissionName: string;
 }
-

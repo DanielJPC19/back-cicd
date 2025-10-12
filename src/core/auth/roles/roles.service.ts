@@ -1,14 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { PermissionNotFoundException, RoleNotFoundException } from 'src/common/exceptions';
-import { RoleConflict } from 'src/common/exceptions/role-conflict.exception';
 import { Repository } from 'typeorm';
+import { PermissionNotFoundException, RoleConflict, RoleNotFoundException } from '../../../common/exceptions';
 import { AddPermissionDto } from '../dto/add-permissionToRole.dto';
 import { CreateRoleDto } from '../dto/create-role.dto';
 import { UpdateRoleDto } from '../dto/update-role.dto';
 import { Role } from '../entities/role.entity';
 import { PermissionsService } from '../permissions/permissions.service';
-
 @Injectable()
 export class RolesService {
 

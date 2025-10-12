@@ -8,6 +8,48 @@
 	},
 	"item": [
 		{
+			"name": "Log in",
+			"item": [
+				{
+					"name": "Admin Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const data = pm.response.json()",
+									"pm.collectionVariables.set('jwt_admin',data.access_token);"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"{{email_admin}}\",\n    \"password\": \"{{password_admin}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{login}}",
+							"host": [
+								"{{login}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
 			"name": "Auth",
 			"item": [
 				{
@@ -243,6 +285,29 @@
 					"response": []
 				},
 				{
+					"name": "Update User",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"phoneNumber\": \"9000000000\",\n  \"address\": \"Calle Falsa 22222, Bogotá\"\n}\n\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{users}}{{userId}}",
+							"host": [
+								"{{users}}{{userId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Get User by id",
 					"request": {
 						"method": "GET",
@@ -257,13 +322,13 @@
 					"response": []
 				},
 				{
-					"name": "Update User",
+					"name": "Update User Role",
 					"request": {
 						"method": "PATCH",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\n  \"phoneNumber\": \"9000000000\",\n  \"address\": \"Calle Falsa 22222, Bogotá\"\n\n}",
+							"raw": "{\n\n  \"roleId\": {{roleId}}\n}\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -271,32 +336,12 @@
 							}
 						},
 						"url": {
-							"raw": "{{users}}{{userId}}",
+							"raw": "{{users}}{{userId}}/role",
 							"host": [
 								"{{users}}{{userId}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Add Role To User",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n\n    \"userId\":{{userId}},\n    \"roleId\": {{roleId}}\n\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{users}}role",
-							"host": [
-								"{{users}}role"
+							],
+							"path": [
+								"role"
 							]
 						}
 					},
@@ -310,7 +355,7 @@
 							"script": {
 								"exec": [
 									"const data = pm.response.json()",
-									"pm.collectionVariables.set('jwt',data.access_token);"
+									"pm.collectionVariables.set('jwt_user',data.access_token);"
 								],
 								"type": "text/javascript",
 								"packages": {},
@@ -323,7 +368,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"email\": \"{{email}}\",\n    \"password\": \"{{password}}\"\n}",
+							"raw": "{\n    \"email\": \"{{email_user}}\",\n    \"password\": \"{{password_user}}\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -338,37 +383,40 @@
 						}
 					},
 					"response": []
+				}
+			],
+			"auth": {
+				"type": "bearer",
+				"bearer": [
+					{
+						"key": "token",
+						"value": "{{jwt_admin}}",
+						"type": "string"
+					}
+				]
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {},
+						"exec": [
+							""
+						]
+					}
 				},
 				{
-					"name": "Get all",
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{jwt}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "GET",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n\n    \"userId\":{{userId}},\n    \"roleId\": {{roleId}}\n\n}"
-						},
-						"url": {
-							"raw": "{{users}}",
-							"host": [
-								"{{users}}"
-							]
-						}
-					},
-					"response": []
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {},
+						"exec": [
+							""
+						]
+					}
 				}
 			]
 		}
@@ -403,6 +451,10 @@
 			"value": ""
 		},
 		{
+			"key": "login",
+			"value": ""
+		},
+		{
 			"key": "users",
 			"value": ""
 		},
@@ -415,7 +467,19 @@
 			"value": ""
 		},
 		{
-			"key": "jwt",
+			"key": "email_admin",
+			"value": ""
+		},
+		{
+			"key": "password_admin",
+			"value": ""
+		},
+		{
+			"key": "jwt_admin",
+			"value": ""
+		},
+		{
+			"key": "jwt_user",
 			"value": ""
 		},
 		{
@@ -431,11 +495,15 @@
 			"value": ""
 		},
 		{
-			"key": "password",
+			"key": "password_user",
 			"value": ""
 		},
 		{
-			"key": "login",
+			"key": "email_user",
+			"value": ""
+		},
+		{
+			"key": "password",
 			"value": ""
 		},
 		{

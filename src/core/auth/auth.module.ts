@@ -17,7 +17,7 @@ import { AuthController } from '../auth.controller';
 import { PermissionsGuard } from './guards/permissions.guard';
 
 @Module({
-	controllers: [UsersController, RolesController, PermissionsController, AuthController],
+	controllers: [AuthController, UsersController, RolesController, PermissionsController, ],
 	providers: [AuthService,UsersService, RolesService, PermissionsService,JwtStrategy,PermissionsGuard],
 	imports: [TypeOrmModule.forFeature([User,Role,Permission]),
 		JwtModule.registerAsync({
