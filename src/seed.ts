@@ -32,7 +32,7 @@ async function seed() {
 	await AppDataSource.initialize();
 
 	console.log('Limpiando tablas...');
-	await AppDataSource.query('TRUNCATE TABLE roles_permissions, users, roles, permissions RESTART IDENTITY CASCADE');
+	await AppDataSource.query('TRUNCATE TABLE diagnostics, medical_records, pets, roles_permissions, users, roles, permissions RESTART IDENTITY CASCADE');
 
 	console.log('Creando roles...');
 	const adminRole = AppDataSource.manager.create(Role, {
@@ -50,6 +50,9 @@ async function seed() {
 		'user_create', 'user_read', 'user_update', 'user_delete','user_add_role',
 		'permission_create', 'permission_read', 'permission_update', 'permission_delete',
 		'role_create', 'role_read', 'role_update', 'role_delete','role_add_permission',
+		'pet_create', 'pet_read', 'pet_update', 'pet_delete',
+		'medical_record_create', 'medical_record_read', 'medical_record_update', 'medical_record_delete',
+		'diagnostic_create', 'diagnostic_read', 'diagnostic_update', 'diagnostic_delete',
 	].map((name) => AppDataSource.manager.create(Permission, { permissionName: name }));
 
 	await AppDataSource.manager.save(permissions);
@@ -59,7 +62,7 @@ async function seed() {
 	console.log('Asignando permisos...');
 	adminRole.permissions = allPermissions;
 	userRole.permissions = allPermissions.filter((p) =>
-		['user_read', 'permission_read', 'role_read'].includes(p.permissionName)
+		['user_read', 'permission_read', 'role_read', 'pet_read', 'medical_record_read', 'diagnostic_read'].includes(p.permissionName)
 	);
 
 	await AppDataSource.manager.save([adminRole, userRole]);

@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './core/auth/auth.module';
+import { ClinicModule } from './clinic/clinic.module';
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 
 type SupportedDbTypes =

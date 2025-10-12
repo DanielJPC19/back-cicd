@@ -2,10 +2,12 @@ import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AuthController } from '../auth.controller';
 import { AuthService } from '../auth.service';
 import { Permission } from './entities/permission.entity';
 import { Role } from './entities/role.entity';
 import { User } from './entities/user.entity';
+import { PermissionsGuard } from './guards/permissions.guard';
 import { JwtStrategy } from './jwt.strategy';
 import { PermissionsController } from './permissions/permissions.controller';
 import { PermissionsService } from './permissions/permissions.service';
@@ -13,8 +15,6 @@ import { RolesController } from './roles/roles.controller';
 import { RolesService } from './roles/roles.service';
 import { UsersController } from './users/users.controller';
 import { UsersService } from './users/users.service';
-import { AuthController } from '../auth.controller';
-import { PermissionsGuard } from './guards/permissions.guard';
 
 @Module({
 	controllers: [AuthController, UsersController, RolesController, PermissionsController, ],
