@@ -727,7 +727,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"Luna\",\n    \"gender\": \"female\",\n    \"birthDate\": \"2023-01-15\",\n    \"breed\": \"Golden Retriever\",\n    \"color\": \"Dorado\",\n    \"speciesId\": 1\n}",
+							"raw": "{\n    \"name\": \"Luna\",\n    \"gender\": \"female\",\n    \"birthDate\": \"2023-01-15\",\n    \"breed\": \"Golden Retriever\",\n    \"color\": \"Dorado\",\n    \"speciesId\": 1,\n    \"ownerId\": 3\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -754,9 +754,9 @@
 							}
 						],
 						"url": {
-							"raw": "{{pets}}{{petId}}",
+							"raw": "{{pets}}1",
 							"host": [
-								"{{pets}}{{petId}}"
+								"{{pets}}1"
 							]
 						}
 					}
@@ -782,9 +782,9 @@
 							}
 						},
 						"url": {
-							"raw": "{{pets}}{{petId}}",
+							"raw": "{{pets}}1",
 							"host": [
-								"{{pets}}{{petId}}"
+								"{{pets}}1"
 							]
 						}
 					}
@@ -801,9 +801,9 @@
 							}
 						],
 						"url": {
-							"raw": "{{pets}}{{petId}}",
+							"raw": "{{pets}}1",
 							"host": [
-								"{{pets}}{{petId}}"
+								"{{pets}}1"
 							]
 						}
 					}
@@ -820,12 +820,12 @@
 							}
 						],
 						"url": {
-							"raw": "{{pets}}by-species/{{speciesId}}",
+							"raw": "{{pets}}by-species/1",
 							"host": [
 								"{{pets}}by-species"
 							],
 							"path": [
-								"{{speciesId}}"
+								"1"
 							]
 						}
 					}
@@ -842,12 +842,12 @@
 							}
 						],
 						"url": {
-							"raw": "{{pets}}owner/1",
+							"raw": "{{pets}}owner/3",
 							"host": [
 								"{{pets}}owner"
 							],
 							"path": [
-								"1"
+								"3"
 							]
 						}
 					}
@@ -901,7 +901,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"petId\": {{petId}},\n    \"veterinarianId\": 1,\n    \"openingDate\": \"2024-10-12\",\n    \"weight\": 30.5,\n    \"size\": \"LARGE\",\n    \"allergies\": \"Sin alergias conocidas\",\n    \"vaccinationStatus\": \"Al día\"\n}",
+							"raw": "{\n    \"petId\": 1,\n    \"veterinarianId\": 1,\n    \"openingDate\": \"2024-10-12\",\n    \"weight\": 30.5,\n    \"size\": \"large\",\n    \"allergies\": \"Sin alergias conocidas\",\n    \"vaccinationStatus\": \"Al día\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -928,9 +928,9 @@
 							}
 						],
 						"url": {
-							"raw": "{{medical_records}}{{medicalRecordId}}",
+							"raw": "{{medical_records}}1",
 							"host": [
-								"{{medical_records}}{{medicalRecordId}}"
+								"{{medical_records}}1"
 							]
 						}
 					}
@@ -956,9 +956,9 @@
 							}
 						},
 						"url": {
-							"raw": "{{medical_records}}{{medicalRecordId}}",
+							"raw": "{{medical_records}}1",
 							"host": [
-								"{{medical_records}}{{medicalRecordId}}"
+								"{{medical_records}}1"
 							]
 						}
 					}
@@ -975,9 +975,9 @@
 							}
 						],
 						"url": {
-							"raw": "{{medical_records}}{{medicalRecordId}}",
+							"raw": "{{medical_records}}1",
 							"host": [
-								"{{medical_records}}{{medicalRecordId}}"
+								"{{medical_records}}1"
 							]
 						}
 					}
@@ -994,12 +994,12 @@
 							}
 						],
 						"url": {
-							"raw": "{{medical_records}}by-pet/{{petId}}",
+							"raw": "{{medical_records}}pet/1",
 							"host": [
-								"{{medical_records}}by-pet"
+								"{{medical_records}}pet"
 							],
 							"path": [
-								"{{petId}}"
+								"1"
 							]
 						}
 					}
@@ -1016,9 +1016,9 @@
 							}
 						],
 						"url": {
-							"raw": "{{medical_records}}by-veterinarian/1",
+							"raw": "{{medical_records}}veterinarian/1",
 							"host": [
-								"{{medical_records}}by-veterinarian"
+								"{{medical_records}}veterinarian"
 							],
 							"path": [
 								"1"
@@ -1075,7 +1075,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"medicalRecordId\": {{medicalRecordId}},\n    \"veterinarianId\": 1,\n    \"diagnosticTypeId\": 1,\n    \"visitDate\": \"2024-10-12\",\n    \"reason\": \"Consulta de bienestar\",\n    \"symptoms\": \"Mascota activa y saludable\",\n    \"examination\": \"Examen físico normal\",\n    \"severity\": \"LOW\",\n    \"recommendations\": \"Continuar con ejercicio regular y dieta balanceada\"\n}",
+							"raw": "{\n    \"medicalRecordId\": 1,\n    \"veterinarianId\": 1,\n    \"diagnosticTypeId\": 1,\n    \"visitDate\": \"2024-10-12\",\n    \"reason\": \"Consulta de bienestar\",\n    \"symptoms\": \"Mascota activa y saludable\",\n    \"examination\": \"Examen físico normal\",\n    \"severity\": \"low\",\n    \"recommendations\": \"Continuar con ejercicio regular y dieta balanceada\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1102,9 +1102,9 @@
 							}
 						],
 						"url": {
-							"raw": "{{diagnostics}}{{diagnosticId}}",
+							"raw": "{{diagnostics}}1",
 							"host": [
-								"{{diagnostics}}{{diagnosticId}}"
+								"{{diagnostics}}1"
 							]
 						}
 					}
@@ -1122,7 +1122,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"severity\": \"MEDIUM\",\n    \"recommendations\": \"Recomendaciones actualizadas: seguir tratamiento\"\n}",
+							"raw": "{\n    \"severity\": \"moderate\",\n    \"recommendations\": \"Recomendaciones actualizadas: seguir tratamiento\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1130,9 +1130,9 @@
 							}
 						},
 						"url": {
-							"raw": "{{diagnostics}}{{diagnosticId}}",
+							"raw": "{{diagnostics}}1",
 							"host": [
-								"{{diagnostics}}{{diagnosticId}}"
+								"{{diagnostics}}1"
 							]
 						}
 					}
@@ -1149,9 +1149,9 @@
 							}
 						],
 						"url": {
-							"raw": "{{diagnostics}}{{diagnosticId}}",
+							"raw": "{{diagnostics}}1",
 							"host": [
-								"{{diagnostics}}{{diagnosticId}}"
+								"{{diagnostics}}1"
 							]
 						}
 					}
@@ -1168,12 +1168,12 @@
 							}
 						],
 						"url": {
-							"raw": "{{diagnostics}}by-medical-record/{{medicalRecordId}}",
+							"raw": "{{diagnostics}}medical-record/1",
 							"host": [
-								"{{diagnostics}}by-medical-record"
+								"{{diagnostics}}medical-record"
 							],
 							"path": [
-								"{{medicalRecordId}}"
+								"1"
 							]
 						}
 					}
@@ -1190,9 +1190,9 @@
 							}
 						],
 						"url": {
-							"raw": "{{diagnostics}}by-veterinarian/1",
+							"raw": "{{diagnostics}}veterinarian/1",
 							"host": [
-								"{{diagnostics}}by-veterinarian"
+								"{{diagnostics}}veterinarian"
 							],
 							"path": [
 								"1"
@@ -1212,12 +1212,12 @@
 							}
 						],
 						"url": {
-							"raw": "{{diagnostics}}by-pet/{{petId}}",
+							"raw": "{{diagnostics}}by-pet/1",
 							"host": [
 								"{{diagnostics}}by-pet"
 							],
 							"path": [
-								"{{petId}}"
+								"1"
 							]
 						}
 					}
@@ -1234,14 +1234,14 @@
 							}
 						],
 						"url": {
-							"raw": "{{diagnostics}}?severity=HIGH",
+							"raw": "{{diagnostics}}?severity=critical",
 							"host": [
 								"{{diagnostics}}"
 							],
 							"query": [
 								{
 									"key": "severity",
-									"value": "HIGH"
+									"value": "critical"
 								}
 							]
 						}
@@ -1259,12 +1259,12 @@
 							}
 						],
 						"url": {
-							"raw": "{{diagnostics}}by-severity/HIGH",
+							"raw": "{{diagnostics}}by-severity/critical",
 							"host": [
 								"{{diagnostics}}by-severity"
 							],
 							"path": [
-								"HIGH"
+								"critical"
 							]
 						}
 					}
@@ -1339,11 +1339,11 @@
 		},
 		{
 			"key": "email_admin",
-			"value": "admin@vet.com"
+			"value": "admin@mail.com"
 		},
 		{
 			"key": "password_admin",
-			"value": "AdminPassword123"
+			"value": "password123"
 		},
 		{
 			"key": "jwt_admin",
@@ -1387,11 +1387,11 @@
 		},
 		{
 			"key": "password_user",
-			"value": "UserPassword123"
+			"value": "userpass456"
 		},
 		{
 			"key": "email_user",
-			"value": "user@vet.com"
+			"value": "user@mail.com"
 		},
 		{
 			"key": "password",

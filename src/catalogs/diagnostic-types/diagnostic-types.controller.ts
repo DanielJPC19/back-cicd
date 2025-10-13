@@ -10,6 +10,7 @@ import {
     Post,
     UseGuards,
 } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Permissions } from '../../core/auth/decorators/permissions.decorator';
 import { PermissionsGuard } from '../../core/auth/guards/permissions.guard';
@@ -19,7 +20,7 @@ import { UpdateDiagnosticTypeDto } from './dto/update-diagnostic-type.dto';
 
 @ApiTags('Diagnostic Types')
 @Controller('diagnostic-types')
-@UseGuards(PermissionsGuard)
+@UseGuards(AuthGuard('jwt'), PermissionsGuard)
 export class DiagnosticTypesController {
 	constructor(private readonly diagnosticTypesService: DiagnosticTypesService) {}
 

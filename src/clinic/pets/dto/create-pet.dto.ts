@@ -21,14 +21,6 @@ export class CreatePetDto {
 		gender: PetGender;
 
 	@ApiProperty({
-		example: "Perro",
-		description: "Especie de la mascota",
-	})
-	@IsNotEmpty()
-	@IsString()
-		species: string;
-
-	@ApiProperty({
 		example: 1,
 		description: "ID de la especie de la mascota",
 	})

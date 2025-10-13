@@ -58,6 +58,10 @@ async function seed() {
 		'pet_create', 'pet_read', 'pet_update', 'pet_delete',
 		'medical_record_create', 'medical_record_read', 'medical_record_update', 'medical_record_delete',
 		'diagnostic_create', 'diagnostic_read', 'diagnostic_update', 'diagnostic_delete',
+		// Permisos para catálogos (Species)
+		'CREATE_SPECIES', 'READ_SPECIES', 'UPDATE_SPECIES', 'DELETE_SPECIES',
+		// Permisos para catálogos (Diagnostic Types)
+		'CREATE_DIAGNOSTIC_TYPE', 'READ_DIAGNOSTIC_TYPE', 'UPDATE_DIAGNOSTIC_TYPE', 'DELETE_DIAGNOSTIC_TYPE',
 	].map((name) => AppDataSource.manager.create(Permission, { permissionName: name }));
 
 	await AppDataSource.manager.save(permissions);
@@ -67,7 +71,7 @@ async function seed() {
 	console.log('Asignando permisos...');
 	adminRole.permissions = allPermissions;
 	userRole.permissions = allPermissions.filter((p) =>
-		['user_read', 'permission_read', 'role_read', 'pet_read', 'medical_record_read', 'diagnostic_read'].includes(p.permissionName)
+		['user_read', 'permission_read', 'role_read', 'pet_read', 'medical_record_read', 'diagnostic_read', 'READ_SPECIES', 'READ_DIAGNOSTIC_TYPE'].includes(p.permissionName)
 	);
 
 	await AppDataSource.manager.save([adminRole, userRole]);
@@ -100,6 +104,8 @@ async function seed() {
 	const saltRounds = 10;
 	const hashedPassword1 = await bcrypt.hash('password123', saltRounds);
 	const hashedPassword2 = await bcrypt.hash('userpass456', saltRounds);
+	const hashedPassword3 = await bcrypt.hash('owner123', saltRounds);
+	const hashedPassword4 = await bcrypt.hash('owner456', saltRounds);
 
 	const users = [
 		{
@@ -120,9 +126,30 @@ async function seed() {
 			address: 'Ciudad',
 			role: userRole,
 		},
+		{
+			firstName: 'Carlos',
+			lastName: 'Pérez',
+			email: 'carlos.perez@mail.com',
+			password: hashedPassword3,
+			phoneNumber: '5551234567',
+			address: 'Avenida Principal 123',
+			role: userRole,
+		},
+		{
+			firstName: 'María',
+			lastName: 'González',
+			email: 'maria.gonzalez@mail.com',
+			password: hashedPassword4,
+			phoneNumber: '5557654321',
+			address: 'Calle Secundaria 456',
+			role: userRole,
+		},
 	];
 	const savedUsers = await AppDataSource.manager.save(User, users);
 	const adminUser = savedUsers[0];
+	const normalUser = savedUsers[1];
+	const ownerCarlos = savedUsers[2];
+	const ownerMaria = savedUsers[3];
 
 	console.log('Creando mascotas...');
 	const [dogSpecies, catSpecies, birdSpecies] = species;
@@ -136,6 +163,7 @@ async function seed() {
 			color: 'Café y blanco',
 			breed: 'Mestizo',
 			species: dogSpecies,
+			owner: ownerCarlos,
 		},
 		{
 			name: 'Mishi',
@@ -145,6 +173,7 @@ async function seed() {
 			color: 'Gris atigrado',
 			breed: 'Persa',
 			species: catSpecies,
+			owner: ownerMaria,
 		},
 		{
 			name: 'Piolín',
@@ -154,6 +183,7 @@ async function seed() {
 			color: 'Amarillo',
 			breed: 'Canario',
 			species: birdSpecies,
+			owner: ownerCarlos,
 		},
 	].map((data) => AppDataSource.manager.create(Pet, data));
 
