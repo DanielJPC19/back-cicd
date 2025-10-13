@@ -1,16 +1,17 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { IsDateString, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsPositive, IsString, Max, Min } from "class-validator";
-import { MedicalRecordStatus, MedicalRecordType, PetSize } from "../entities/medical-record.entity";
+import { MedicalRecordStatus, PetSize } from "../entities/medical-record.entity";
 
 export class CreateMedicalRecordDto {
 
 	@ApiProperty({
-		example: MedicalRecordType.CONSULTATION,
-		description: "Tipo de registro médico",
-		enum: MedicalRecordType,
+		example: 1,
+		description: "ID del tipo de diagnóstico",
 	})
-	@IsEnum(MedicalRecordType)
-		type: MedicalRecordType;
+	@IsNotEmpty()
+	@IsNumber()
+	@IsPositive()
+		diagnosticTypeId: number;
 
 	@ApiPropertyOptional({
 		example: MedicalRecordStatus.SCHEDULED,

@@ -1,16 +1,8 @@
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 import { User } from '../../../core/auth/entities/user.entity';
+import { DiagnosticType } from '../../diagnostic-types/entities/diagnostic-type.entity';
 import { Diagnostic } from '../../diagnostics/entities/diagnostic.entity';
 import { Pet } from '../../pets/entities/pet.entity';
-
-export enum MedicalRecordType {
-	CONSULTATION = 'consultation',
-	VACCINATION = 'vaccination',
-	SURGERY = 'surgery',
-	TREATMENT = 'treatment',
-	EMERGENCY = 'emergency',
-	ROUTINE_CHECKUP = 'routine_checkup'
-}
 
 export enum MedicalRecordStatus {
 	SCHEDULED = 'scheduled',
@@ -31,8 +23,9 @@ export class MedicalRecord {
 	@PrimaryGeneratedColumn()
 		id: number;
 
-	@Column({ type: 'enum', enum: MedicalRecordType, nullable: false })
-		type: MedicalRecordType;
+	@ManyToOne(() => DiagnosticType, { eager: true, nullable: false })
+	@JoinColumn({ name: 'diagnostic_type_id' })
+		type: DiagnosticType;
 
 	@Column({ type: 'enum', enum: MedicalRecordStatus, nullable: false, default: MedicalRecordStatus.SCHEDULED })
 		status: MedicalRecordStatus;

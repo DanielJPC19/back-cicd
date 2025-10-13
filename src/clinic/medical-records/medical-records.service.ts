@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { MedicalRecordNotFoundException } from '../../common/exceptions';
 import { UsersService } from '../../core/auth/users/users.service';
+import { DiagnosticTypesService } from '../diagnostic-types/diagnostic-types.service';
 import { PetsService } from '../pets/pets.service';
 import { CreateMedicalRecordDto } from './dto/create-medical-record.dto';
 import { UpdateMedicalRecordDto } from './dto/update-medical-record.dto';
@@ -15,7 +16,8 @@ export class MedicalRecordsService {
 		@InjectRepository(MedicalRecord)
 		private readonly medicalRecordRepository: Repository<MedicalRecord>,
 		private readonly petsService: PetsService,
-		private readonly usersService: UsersService
+		private readonly usersService: UsersService,
+		private readonly diagnosticTypesService: DiagnosticTypesService
 	) {}
 
 	async create(createMedicalRecordDto: CreateMedicalRecordDto): Promise<MedicalRecord> {
@@ -24,15 +26,18 @@ export class MedicalRecordsService {
 		
 		// Verificar que el veterinario existe
 		const veterinarian = await this.usersService.findOne(createMedicalRecordDto.veterinarianId);
+		
+		// Verificar que el tipo de diagnóstico existe
+		const diagnosticType = await this.diagnosticTypesService.findOne(createMedicalRecordDto.diagnosticTypeId);
 
 		const newMedicalRecord = this.medicalRecordRepository.create({
 			...createMedicalRecordDto,
 			pet: pet,
-			veterinarian: veterinarian
+			veterinarian: veterinarian,
+			type: diagnosticType
 		});
 
-		const savedMedicalRecord = await this.medicalRecordRepository.save(newMedicalRecord);
-		return savedMedicalRecord;
+		return await this.medicalRecordRepository.save(newMedicalRecord);
 	}
 
 	async findAll(): Promise<MedicalRecord[]> {
@@ -77,7 +82,37 @@ export class MedicalRecordsService {
 	}
 
 	async update(id: number, updateMedicalRecordDto: UpdateMedicalRecordDto): Promise<MedicalRecord> {
-		const result = await this.medicalRecordRepository.update(id, updateMedicalRecordDto);
+		const updateData: any = {
+			status: updateMedicalRecordDto.status,
+			visitDate: updateMedicalRecordDto.visitDate,
+			reason: updateMedicalRecordDto.reason,
+			symptoms: updateMedicalRecordDto.symptoms,
+			examination: updateMedicalRecordDto.examination,
+			prescription: updateMedicalRecordDto.prescription,
+			notes: updateMedicalRecordDto.notes,
+			weight: updateMedicalRecordDto.weight,
+			size: updateMedicalRecordDto.size,
+			allergies: updateMedicalRecordDto.allergies,
+			medications: updateMedicalRecordDto.medications,
+			specialNotes: updateMedicalRecordDto.specialNotes,
+			vaccinationStatus: updateMedicalRecordDto.vaccinationStatus,
+			cost: updateMedicalRecordDto.cost
+		};
+
+		// Si se proporciona diagnosticTypeId, verificar que el tipo existe
+		if (updateMedicalRecordDto.diagnosticTypeId) {
+			const diagnosticType = await this.diagnosticTypesService.findOne(updateMedicalRecordDto.diagnosticTypeId);
+			updateData.type = diagnosticType;
+		}
+
+		// Limpiar valores undefined
+		Object.keys(updateData).forEach(key => {
+			if (updateData[key] === undefined) {
+				delete updateData[key];
+			}
+		});
+
+		const result = await this.medicalRecordRepository.update(id, updateData);
 
 		if (!result.affected) {
 			throw new MedicalRecordNotFoundException(id);

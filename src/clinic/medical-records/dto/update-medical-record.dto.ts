@@ -1,18 +1,18 @@
 import { ApiPropertyOptional, PartialType } from "@nestjs/swagger";
-import { IsDateString, IsEnum, IsNumber, IsOptional, IsString, Max, Min } from "class-validator";
-import { MedicalRecordStatus, MedicalRecordType } from "../entities/medical-record.entity";
+import { IsDateString, IsEnum, IsNumber, IsOptional, IsPositive, IsString, Max, Min } from "class-validator";
+import { MedicalRecordStatus } from "../entities/medical-record.entity";
 import { CreateMedicalRecordDto } from "./create-medical-record.dto";
 
 export class UpdateMedicalRecordDto extends PartialType(CreateMedicalRecordDto) {
 
 	@ApiPropertyOptional({
-		example: MedicalRecordType.CONSULTATION,
-		description: "Tipo de registro médico",
-		enum: MedicalRecordType,
+		example: 1,
+		description: "ID del tipo de diagnóstico",
 	})
 	@IsOptional()
-	@IsEnum(MedicalRecordType)
-		type?: MedicalRecordType;
+	@IsNumber()
+	@IsPositive()
+		diagnosticTypeId?: number;
 
 	@ApiPropertyOptional({
 		example: MedicalRecordStatus.COMPLETED,
