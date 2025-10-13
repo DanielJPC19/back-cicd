@@ -28,6 +28,7 @@ export class Diagnostic {
 	@Column({ type: 'text', nullable: true })
 		symptoms: string;
 
+		//esto seria como los hallazgos del diagnostico
 	@Column({ type: 'text', nullable: true })
 		examination: string;
 

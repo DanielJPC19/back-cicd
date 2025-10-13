@@ -2,6 +2,11 @@ import * as bcrypt from 'bcrypt';
 import * as dotenv from 'dotenv';
 import { DataSource } from 'typeorm';
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
+import { DiagnosticType } from './clinic/diagnostic-types/entities/diagnostic-type.entity';
+import { Diagnostic, DiagnosticSeverity } from './clinic/diagnostics/entities/diagnostic.entity';
+import { MedicalRecord, PetSize } from './clinic/medical-records/entities/medical-record.entity';
+import { Pet, PetGender } from './clinic/pets/entities/pet.entity';
+import { Species } from './clinic/species/entities/species.entity';
 import { Permission } from './core/auth/entities/permission.entity';
 import { Role } from './core/auth/entities/role.entity';
 import { User } from './core/auth/entities/user.entity';
@@ -32,7 +37,7 @@ async function seed() {
 	await AppDataSource.initialize();
 
 	console.log('Limpiando tablas...');
-	await AppDataSource.query('TRUNCATE TABLE diagnostics, medical_records, pets, roles_permissions, users, roles, permissions RESTART IDENTITY CASCADE');
+	await AppDataSource.query('TRUNCATE TABLE diagnostics, medical_records, pets, species, diagnostic_types, roles_permissions, users, roles, permissions RESTART IDENTITY CASCADE');
 
 	console.log('Creando roles...');
 	const adminRole = AppDataSource.manager.create(Role, {
@@ -67,6 +72,30 @@ async function seed() {
 
 	await AppDataSource.manager.save([adminRole, userRole]);
 
+	console.log('Creando especies...');
+	const species = [
+		{ name: 'Perro', description: 'Canis lupus familiaris' },
+		{ name: 'Gato', description: 'Felis catus' },
+		{ name: 'Ave', description: 'Aves domésticas' },
+		{ name: 'Conejo', description: 'Oryctolagus cuniculus' },
+		{ name: 'Hamster', description: 'Cricetinae' },
+	].map((data) => AppDataSource.manager.create(Species, data));
+
+	await AppDataSource.manager.save(species);
+
+	console.log('Creando tipos de diagnóstico...');
+	const diagnosticTypes = [
+		{ name: 'Consulta General' },
+		{ name: 'Vacunación' },
+		{ name: 'Cirugía' },
+		{ name: 'Emergencia' },
+		{ name: 'Control Rutinario' },
+		{ name: 'Dental' },
+		{ name: 'Dermatológica' },
+	].map((data) => AppDataSource.manager.create(DiagnosticType, data));
+
+	await AppDataSource.manager.save(diagnosticTypes);
+
 	console.log('Creando usuarios...');
 	const saltRounds = 10;
 	const hashedPassword1 = await bcrypt.hash('password123', saltRounds);
@@ -92,7 +121,113 @@ async function seed() {
 			role: userRole,
 		},
 	];
-	await AppDataSource.manager.save(User, users);
+	const savedUsers = await AppDataSource.manager.save(User, users);
+	const adminUser = savedUsers[0];
+
+	console.log('Creando mascotas...');
+	const [dogSpecies, catSpecies, birdSpecies] = species;
+	
+	const pets = [
+		{
+			name: 'Firulais',
+			age: 3,
+			gender: PetGender.MALE,
+			birthDate: new Date('2021-01-15'),
+			color: 'Café y blanco',
+			breed: 'Mestizo',
+			species: dogSpecies,
+		},
+		{
+			name: 'Mishi',
+			age: 2,
+			gender: PetGender.FEMALE,
+			birthDate: new Date('2022-03-10'),
+			color: 'Gris atigrado',
+			breed: 'Persa',
+			species: catSpecies,
+		},
+		{
+			name: 'Piolín',
+			age: 1,
+			gender: PetGender.MALE,
+			birthDate: new Date('2023-05-20'),
+			color: 'Amarillo',
+			breed: 'Canario',
+			species: birdSpecies,
+		},
+	].map((data) => AppDataSource.manager.create(Pet, data));
+
+	const savedPets = await AppDataSource.manager.save(pets);
+
+	console.log('Creando historias clínicas...');
+	const medicalRecords: MedicalRecord[] = [];
+	for (let i = 0; i < savedPets.length; i++) {
+		const pet = savedPets[i];
+		const weights = [25.5, 4.2, 0.15];
+		const sizes = [PetSize.MEDIUM, PetSize.SMALL, PetSize.SMALL];
+		
+		const medicalRecord = AppDataSource.manager.create(MedicalRecord, {
+			pet: pet,
+			veterinarian: adminUser,
+			openingDate: new Date('2024-01-15'),
+			weight: weights[i],
+			size: sizes[i],
+			allergies: i === 0 ? 'Alérgico al pollo' : undefined,
+			medications: i === 1 ? 'Vitaminas diarias' : undefined,
+			vaccinationStatus: 'Vacunas al día',
+		});
+		medicalRecords.push(medicalRecord);
+	}
+
+	const savedMedicalRecords = await AppDataSource.manager.save(medicalRecords);
+
+	console.log('Creando diagnósticos...');
+	const [consultaGeneral, vacunacion, controlRutinario] = diagnosticTypes;
+	
+	const diagnostics: Diagnostic[] = [];
+	
+	const diagnosticData = [
+		{
+			medicalRecord: savedMedicalRecords[0],
+			veterinarian: adminUser,
+			type: consultaGeneral,
+			visitDate: new Date('2024-01-15'),
+			reason: 'Consulta de rutina',
+			symptoms: 'Activo y saludable',
+			examination: 'Examen físico normal, peso adecuado',
+			severity: DiagnosticSeverity.LOW,
+			recommendations: 'Continuar con dieta balanceada, ejercicio regular',
+		},
+		{
+			medicalRecord: savedMedicalRecords[1],
+			veterinarian: adminUser,
+			type: vacunacion,
+			visitDate: new Date('2024-02-10'),
+			reason: 'Vacunación anual',
+			symptoms: undefined,
+			examination: 'Estado general excelente',
+			severity: DiagnosticSeverity.LOW,
+			recommendations: 'Próxima vacuna en 12 meses, mantener calendario',
+		},
+		{
+			medicalRecord: savedMedicalRecords[2],
+			veterinarian: adminUser,
+			type: controlRutinario,
+			visitDate: new Date('2024-03-05'),
+			reason: 'Control de crecimiento',
+			symptoms: 'Desarrollo normal',
+			examination: 'Crecimiento adecuado para la edad',
+			severity: DiagnosticSeverity.LOW,
+			recommendations: 'Control en 3 meses, alimentación balanceada',
+		},
+	];
+	
+	for (const data of diagnosticData) {
+		const diagnostic = AppDataSource.manager.create(Diagnostic, data);
+		diagnostics.push(diagnostic);
+	}
+
+	await AppDataSource.manager.save(diagnostics);
 
 	console.log('Seed completo');
 	await AppDataSource.destroy();
