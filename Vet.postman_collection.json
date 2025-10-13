@@ -419,6 +419,857 @@
 					}
 				}
 			]
+		},
+		{
+			"name": "Clinic - Species",
+			"item": [
+				{
+					"name": "Get All Species",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{species}}",
+							"host": [
+								"{{species}}"
+							]
+						}
+					}
+				},
+				{
+					"name": "Create Species",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const data = pm.response.json();",
+									"pm.collectionVariables.set('speciesId', data.id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Reptil\",\n    \"description\": \"Reptiles domésticos\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{species}}",
+							"host": [
+								"{{species}}"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Species by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{species}}{{speciesId}}",
+							"host": [
+								"{{species}}{{speciesId}}"
+							]
+						}
+					}
+				},
+				{
+					"name": "Update Species",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Reptil Actualizado\",\n    \"description\": \"Reptiles domésticos actualizados\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{species}}{{speciesId}}",
+							"host": [
+								"{{species}}{{speciesId}}"
+							]
+						}
+					}
+				},
+				{
+					"name": "Delete Species",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{species}}{{speciesId}}",
+							"host": [
+								"{{species}}{{speciesId}}"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Clinic - Diagnostic Types",
+			"item": [
+				{
+					"name": "Get All Diagnostic Types",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{diagnostic_types}}",
+							"host": [
+								"{{diagnostic_types}}"
+							]
+						}
+					}
+				},
+				{
+					"name": "Create Diagnostic Type",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const data = pm.response.json();",
+									"pm.collectionVariables.set('diagnosticTypeId', data.id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Radiología\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{diagnostic_types}}",
+							"host": [
+								"{{diagnostic_types}}"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Diagnostic Type by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{diagnostic_types}}{{diagnosticTypeId}}",
+							"host": [
+								"{{diagnostic_types}}{{diagnosticTypeId}}"
+							]
+						}
+					}
+				},
+				{
+					"name": "Update Diagnostic Type",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Radiología Avanzada\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{diagnostic_types}}{{diagnosticTypeId}}",
+							"host": [
+								"{{diagnostic_types}}{{diagnosticTypeId}}"
+							]
+						}
+					}
+				},
+				{
+					"name": "Delete Diagnostic Type",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{diagnostic_types}}{{diagnosticTypeId}}",
+							"host": [
+								"{{diagnostic_types}}{{diagnosticTypeId}}"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Clinic - Pets",
+			"item": [
+				{
+					"name": "Get All Pets",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{pets}}",
+							"host": [
+								"{{pets}}"
+							]
+						}
+					}
+				},
+				{
+					"name": "Create Pet",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const data = pm.response.json();",
+									"pm.collectionVariables.set('petId', data.id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Luna\",\n    \"gender\": \"female\",\n    \"birthDate\": \"2023-01-15\",\n    \"breed\": \"Golden Retriever\",\n    \"color\": \"Dorado\",\n    \"speciesId\": 1\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{pets}}",
+							"host": [
+								"{{pets}}"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Pet by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{pets}}{{petId}}",
+							"host": [
+								"{{pets}}{{petId}}"
+							]
+						}
+					}
+				},
+				{
+					"name": "Update Pet",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Luna Actualizada\",\n    \"breed\": \"Golden Retriever Mix\",\n    \"color\": \"Dorado Claro\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{pets}}{{petId}}",
+							"host": [
+								"{{pets}}{{petId}}"
+							]
+						}
+					}
+				},
+				{
+					"name": "Delete Pet",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{pets}}{{petId}}",
+							"host": [
+								"{{pets}}{{petId}}"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Pets by Species",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{pets}}by-species/{{speciesId}}",
+							"host": [
+								"{{pets}}by-species"
+							],
+							"path": [
+								"{{speciesId}}"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Pets by Owner",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{pets}}owner/1",
+							"host": [
+								"{{pets}}owner"
+							],
+							"path": [
+								"1"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Clinic - Medical Records",
+			"item": [
+				{
+					"name": "Get All Medical Records",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{medical_records}}",
+							"host": [
+								"{{medical_records}}"
+							]
+						}
+					}
+				},
+				{
+					"name": "Create Medical Record",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const data = pm.response.json();",
+									"pm.collectionVariables.set('medicalRecordId', data.id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"petId\": {{petId}},\n    \"veterinarianId\": 1,\n    \"openingDate\": \"2024-10-12\",\n    \"weight\": 30.5,\n    \"size\": \"LARGE\",\n    \"allergies\": \"Sin alergias conocidas\",\n    \"vaccinationStatus\": \"Al día\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{medical_records}}",
+							"host": [
+								"{{medical_records}}"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Medical Record by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{medical_records}}{{medicalRecordId}}",
+							"host": [
+								"{{medical_records}}{{medicalRecordId}}"
+							]
+						}
+					}
+				},
+				{
+					"name": "Update Medical Record",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"weight\": 31.0,\n    \"allergies\": \"Alérgico a pollo\",\n    \"vaccinationStatus\": \"Actualizado 2024\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{medical_records}}{{medicalRecordId}}",
+							"host": [
+								"{{medical_records}}{{medicalRecordId}}"
+							]
+						}
+					}
+				},
+				{
+					"name": "Delete Medical Record",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{medical_records}}{{medicalRecordId}}",
+							"host": [
+								"{{medical_records}}{{medicalRecordId}}"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Medical Records by Pet",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{medical_records}}by-pet/{{petId}}",
+							"host": [
+								"{{medical_records}}by-pet"
+							],
+							"path": [
+								"{{petId}}"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Medical Records by Veterinarian",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{medical_records}}by-veterinarian/1",
+							"host": [
+								"{{medical_records}}by-veterinarian"
+							],
+							"path": [
+								"1"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Clinic - Diagnostics",
+			"item": [
+				{
+					"name": "Get All Diagnostics",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{diagnostics}}",
+							"host": [
+								"{{diagnostics}}"
+							]
+						}
+					}
+				},
+				{
+					"name": "Create Diagnostic",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const data = pm.response.json();",
+									"pm.collectionVariables.set('diagnosticId', data.id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"medicalRecordId\": {{medicalRecordId}},\n    \"veterinarianId\": 1,\n    \"diagnosticTypeId\": 1,\n    \"visitDate\": \"2024-10-12\",\n    \"reason\": \"Consulta de bienestar\",\n    \"symptoms\": \"Mascota activa y saludable\",\n    \"examination\": \"Examen físico normal\",\n    \"severity\": \"LOW\",\n    \"recommendations\": \"Continuar con ejercicio regular y dieta balanceada\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{diagnostics}}",
+							"host": [
+								"{{diagnostics}}"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Diagnostic by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{diagnostics}}{{diagnosticId}}",
+							"host": [
+								"{{diagnostics}}{{diagnosticId}}"
+							]
+						}
+					}
+				},
+				{
+					"name": "Update Diagnostic",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"severity\": \"MEDIUM\",\n    \"recommendations\": \"Recomendaciones actualizadas: seguir tratamiento\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{diagnostics}}{{diagnosticId}}",
+							"host": [
+								"{{diagnostics}}{{diagnosticId}}"
+							]
+						}
+					}
+				},
+				{
+					"name": "Delete Diagnostic",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{diagnostics}}{{diagnosticId}}",
+							"host": [
+								"{{diagnostics}}{{diagnosticId}}"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Diagnostics by Medical Record",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{diagnostics}}by-medical-record/{{medicalRecordId}}",
+							"host": [
+								"{{diagnostics}}by-medical-record"
+							],
+							"path": [
+								"{{medicalRecordId}}"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Diagnostics by Veterinarian",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{diagnostics}}by-veterinarian/1",
+							"host": [
+								"{{diagnostics}}by-veterinarian"
+							],
+							"path": [
+								"1"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Diagnostics by Pet",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{diagnostics}}by-pet/{{petId}}",
+							"host": [
+								"{{diagnostics}}by-pet"
+							],
+							"path": [
+								"{{petId}}"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Diagnostics by Severity (Query)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{diagnostics}}?severity=HIGH",
+							"host": [
+								"{{diagnostics}}"
+							],
+							"query": [
+								{
+									"key": "severity",
+									"value": "HIGH"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Diagnostics by Severity (Path)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{diagnostics}}by-severity/HIGH",
+							"host": [
+								"{{diagnostics}}by-severity"
+							],
+							"path": [
+								"HIGH"
+							]
+						}
+					}
+				}
+			]
 		}
 	],
 	"event": [
@@ -448,31 +1299,51 @@
 	"variable": [
 		{
 			"key": "base",
-			"value": ""
+			"value": "http://localhost:3500"
 		},
 		{
 			"key": "login",
-			"value": ""
+			"value": "http://localhost:3500/auth/login"
 		},
 		{
 			"key": "users",
-			"value": ""
+			"value": "http://localhost:3500/users/"
 		},
 		{
 			"key": "roles",
-			"value": ""
+			"value": "http://localhost:3500/roles/"
 		},
 		{
 			"key": "permissions",
-			"value": ""
+			"value": "http://localhost:3500/permissions/"
+		},
+		{
+			"key": "species",
+			"value": "http://localhost:3500/species/"
+		},
+		{
+			"key": "diagnostic_types",
+			"value": "http://localhost:3500/diagnostic-types/"
+		},
+		{
+			"key": "pets",
+			"value": "http://localhost:3500/pets/"
+		},
+		{
+			"key": "medical_records",
+			"value": "http://localhost:3500/medical-records/"
+		},
+		{
+			"key": "diagnostics",
+			"value": "http://localhost:3500/diagnostics/"
 		},
 		{
 			"key": "email_admin",
-			"value": ""
+			"value": "admin@vet.com"
 		},
 		{
 			"key": "password_admin",
-			"value": ""
+			"value": "AdminPassword123"
 		},
 		{
 			"key": "jwt_admin",
@@ -495,12 +1366,32 @@
 			"value": ""
 		},
 		{
-			"key": "password_user",
+			"key": "speciesId",
 			"value": ""
 		},
 		{
-			"key": "email_user",
+			"key": "diagnosticTypeId",
 			"value": ""
+		},
+		{
+			"key": "petId",
+			"value": ""
+		},
+		{
+			"key": "medicalRecordId",
+			"value": ""
+		},
+		{
+			"key": "diagnosticId",
+			"value": ""
+		},
+		{
+			"key": "password_user",
+			"value": "UserPassword123"
+		},
+		{
+			"key": "email_user",
+			"value": "user@vet.com"
 		},
 		{
 			"key": "password",
