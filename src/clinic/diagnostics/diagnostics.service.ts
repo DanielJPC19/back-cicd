@@ -94,6 +94,14 @@ export class DiagnosticsService {
 		});
 	}
 
+	async findByPet(petId: number): Promise<Diagnostic[]> {
+		return this.diagnosticRepository.find({
+			where: { medicalRecord: { pet: { id: petId } } },
+			relations: ['medicalRecord', 'veterinarian', 'medicalRecord.pet'],
+			order: { createdAt: 'DESC' }
+		});
+	}
+
 	async update(id: number, updateDiagnosticDto: UpdateDiagnosticDto): Promise<Diagnostic> {
 		// Si se proporciona diagnosticTypeId, verificar que el tipo existe
 		if (updateDiagnosticDto.diagnosticTypeId) {

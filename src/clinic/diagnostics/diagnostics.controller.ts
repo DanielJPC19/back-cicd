@@ -86,6 +86,31 @@ export class DiagnosticsController {
 		return result;
 	}
 
+	@ApiOperation({ summary: 'Obtener diagnósticos por mascota' })
+	@ApiParam({ name: 'petId', description: 'ID de la mascota', type: 'number' })
+	@ApiResponse({ status: 200, description: 'Diagnósticos de la mascota obtenidos correctamente.' })
+	@ApiResponse({ status: 401, description: 'No autenticado — JWT inválido o no provisto.' })
+	@ApiResponse({ status: 403, description: 'Permisos insuficientes' })
+	@ApiResponse({ status: 404, description: 'Mascota no encontrada.' })
+	@Permissions('diagnostic_read')
+	@Get('by-pet/:petId')
+	async findByPet(@Param('petId', ParseIntPipe) petId: number) {
+		const result = await this.diagnosticsService.findByPet(petId);
+		return result;
+	}
+
+	@ApiOperation({ summary: 'Obtener diagnósticos por severidad' })
+	@ApiParam({ name: 'severity', description: 'Severidad del diagnóstico (LOW, MEDIUM, HIGH)', type: 'string' })
+	@ApiResponse({ status: 200, description: 'Diagnósticos por severidad obtenidos correctamente.' })
+	@ApiResponse({ status: 401, description: 'No autenticado — JWT inválido o no provisto.' })
+	@ApiResponse({ status: 403, description: 'Permisos insuficientes' })
+	@Permissions('diagnostic_read')
+	@Get('by-severity/:severity')
+	async findBySeverityParam(@Param('severity') severity: string) {
+		const result = await this.diagnosticsService.findBySeverity(severity);
+		return result;
+	}
+
 	@ApiOperation({ summary: 'Actualizar un diagnóstico' })
 	@ApiParam({ name: 'id', description: 'ID del diagnóstico', type: 'number' })
 	@ApiBody({ type: UpdateDiagnosticDto })

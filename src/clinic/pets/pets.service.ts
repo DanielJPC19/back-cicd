@@ -68,6 +68,16 @@ export class PetsService {
 		});
 	}
 
+	async findBySpecies(speciesId: number): Promise<Pet[]> {
+		// Verificar que la especie existe
+		await this.speciesService.findOne(speciesId);
+
+		return this.petRepository.find({
+			where: { species: { id: speciesId } },
+			relations: ['owner', 'species']
+		});
+	}
+
 	async update(id: number, updatePetDto: UpdatePetDto): Promise<Pet> {
 		const updateData: any = {
 			name: updatePetDto.name,

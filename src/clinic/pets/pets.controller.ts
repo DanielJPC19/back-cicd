@@ -69,6 +69,19 @@ export class PetsController {
 		return result;
 	}
 
+	@ApiOperation({ summary: 'Obtener mascotas por especie' })
+	@ApiParam({ name: 'speciesId', description: 'ID de la especie', type: 'number' })
+	@ApiResponse({ status: 200, description: 'Mascotas de la especie obtenidas correctamente.' })
+	@ApiResponse({ status: 401, description: 'No autenticado — JWT inválido o no provisto.' })
+	@ApiResponse({ status: 403, description: 'Permisos insuficientes' })
+	@ApiResponse({ status: 404, description: 'Especie no encontrada.' })
+	@Permissions('pet_read')
+	@Get('by-species/:speciesId')
+	async findBySpecies(@Param('speciesId', ParseIntPipe) speciesId: number) {
+		const result = await this.petsService.findBySpecies(speciesId);
+		return result;
+	}
+
 	@ApiOperation({ summary: 'Actualizar una mascota' })
 	@ApiParam({ name: 'id', description: 'ID de la mascota', type: 'number' })
 	@ApiBody({ type: UpdatePetDto })
