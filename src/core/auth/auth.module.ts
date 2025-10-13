@@ -31,6 +31,6 @@ import { UsersService } from './users/users.service';
 			}),
 		}),
 	],
-	//exports: [],
+	exports: [UsersService, RolesService, PermissionsService, PermissionsGuard],
 })
 export class AuthModule {}
