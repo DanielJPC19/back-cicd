@@ -1,11 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { DiagnosticTypeConflictException, DiagnosticTypeNotFoundException } from '../../common/exceptions';
 import { DiagnosticTypesService } from './diagnostic-types.service';
-import { DiagnosticType } from './entities/diagnostic-type.entity';
 import { CreateDiagnosticTypeDto } from './dto/create-diagnostic-type.dto';
 import { UpdateDiagnosticTypeDto } from './dto/update-diagnostic-type.dto';
-import { DiagnosticTypeConflictException, DiagnosticTypeNotFoundException } from '../../common/exceptions';
+import { DiagnosticType } from './entities/diagnostic-type.entity';
 
 describe('DiagnosticTypesService', () => {
 	let service: DiagnosticTypesService;

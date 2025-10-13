@@ -1,9 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { PetsController } from './pets.controller';
-import { PetsService } from './pets.service';
 import { CreatePetDto } from './dto/create-pet.dto';
 import { UpdatePetDto } from './dto/update-pet.dto';
 import { PetGender } from './entities/pet.entity';
+import { PetsController } from './pets.controller';
+import { PetsService } from './pets.service';
 
 describe('PetsController', () => {
 	let controller: PetsController;

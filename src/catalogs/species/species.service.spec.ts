@@ -1,11 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { SpeciesService } from './species.service';
-import { Species } from './entities/species.entity';
+import { SpeciesConflictException, SpeciesNotFoundException } from '../../common/exceptions';
 import { CreateSpeciesDto } from './dto/create-species.dto';
 import { UpdateSpeciesDto } from './dto/update-species.dto';
-import { SpeciesConflictException, SpeciesNotFoundException } from '../../common/exceptions';
+import { Species } from './entities/species.entity';
+import { SpeciesService } from './species.service';
 
 describe('SpeciesService', () => {
 	let service: SpeciesService;
