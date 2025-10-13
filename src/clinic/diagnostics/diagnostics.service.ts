@@ -31,9 +31,16 @@ export class DiagnosticsService {
 		const diagnosticType = await this.diagnosticTypesService.findOne(createDiagnosticDto.diagnosticTypeId);
 
 		const newDiagnostic = this.diagnosticRepository.create({
+			visitDate: createDiagnosticDto.visitDate,
+			reason: createDiagnosticDto.reason,
+			symptoms: createDiagnosticDto.symptoms,
+			examination: createDiagnosticDto.examination,
+			treatment: createDiagnosticDto.treatment,
+			prescription: createDiagnosticDto.prescription,
 			description: createDiagnosticDto.description,
 			severity: createDiagnosticDto.severity,
 			status: createDiagnosticDto.status,
+			cost: createDiagnosticDto.cost,
 			recommendations: createDiagnosticDto.recommendations,
 			followUpInstructions: createDiagnosticDto.followUpInstructions,
 			followUpDate: createDiagnosticDto.followUpDate,

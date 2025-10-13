@@ -26,6 +26,24 @@ export class Diagnostic {
 	@JoinColumn({ name: 'diagnostic_type_id' })
 		type: DiagnosticType;
 
+	@Column({ type: 'date', nullable: false })
+		visitDate: Date;
+
+	@Column({ type: 'text', nullable: false })
+		reason: string;
+
+	@Column({ type: 'text', nullable: true })
+		symptoms: string;
+
+	@Column({ type: 'text', nullable: true })
+		examination: string;
+
+	@Column({ type: 'text', nullable: true })
+		treatment: string;
+
+	@Column({ type: 'text', nullable: true })
+		prescription: string;
+
 	@Column({ type: 'text', nullable: true })
 		description: string;
 
@@ -34,6 +52,9 @@ export class Diagnostic {
 
 	@Column({ type: 'enum', enum: DiagnosticStatus, nullable: false, default: DiagnosticStatus.PRELIMINARY })
 		status: DiagnosticStatus;
+
+	@Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
+		cost: number;
 
 	@Column({ type: 'text', nullable: true })
 		recommendations: string;
