@@ -1,6 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { DiagnosticTypesService } from '../../catalogs/diagnostic-types/diagnostic-types.service';
 import { DiagnosticNotFoundException } from '../../common/exceptions';
 import { UsersService } from '../../core/auth/users/users.service';
@@ -12,31 +11,31 @@ import { Diagnostic, DiagnosticSeverity } from './entities/diagnostic.entity';
 
 describe('DiagnosticsService', () => {
 	let service: DiagnosticsService;
-	let mockDiagnosticRepository: Partial<Repository<Diagnostic>>;
-	let mockMedicalRecordsService: Partial<MedicalRecordsService>;
-	let mockUsersService: Partial<UsersService>;
-	let mockDiagnosticTypesService: Partial<DiagnosticTypesService>;
+	let mockDiagnosticRepository: any;
+	let mockMedicalRecordsService: any;
+	let mockUsersService: any;
+	let mockDiagnosticTypesService: any;
 
 	beforeEach(async () => {
 		mockDiagnosticRepository = {
-			create: jest.fn() as jest.MockedFunction<any>,
-			save: jest.fn() as jest.MockedFunction<any>,
-			find: jest.fn() as jest.MockedFunction<any>,
-			findOne: jest.fn() as jest.MockedFunction<any>,
-			update: jest.fn() as jest.MockedFunction<any>,
-			softDelete: jest.fn() as jest.MockedFunction<any>,
+			create: jest.fn(),
+			save: jest.fn(),
+			find: jest.fn(),
+			findOne: jest.fn(),
+			update: jest.fn(),
+			softDelete: jest.fn(),
 		};
 
 		mockMedicalRecordsService = {
-			findOne: jest.fn() as jest.MockedFunction<any>,
+			findOne: jest.fn(),
 		};
 
 		mockUsersService = {
-			findOne: jest.fn() as jest.MockedFunction<any>,
+			findOne: jest.fn(),
 		};
 
 		mockDiagnosticTypesService = {
-			findOne: jest.fn() as jest.MockedFunction<any>,
+			findOne: jest.fn(),
 		};
 
 		const module: TestingModule = await Test.createTestingModule({

@@ -154,6 +154,19 @@ describe('DiagnosticTypesService', () => {
 
 			await expect(service.update(999, updateDiagnosticTypeDto)).rejects.toThrow(DiagnosticTypeNotFoundException);
 		});
+
+		it('should throw DiagnosticTypeConflictException when updating with existing name', async () => {
+			const updateDiagnosticTypeDto: UpdateDiagnosticTypeDto = { name: 'Existing Name' };
+
+			const existingType = { id: 2, name: 'Existing Name' };
+			mockDiagnosticTypeRepository.findOne.mockResolvedValue(existingType);
+
+			await expect(service.update(1, updateDiagnosticTypeDto)).rejects.toThrow(DiagnosticTypeConflictException);
+			
+			expect(mockDiagnosticTypeRepository.findOne).toHaveBeenCalledWith({
+				where: { name: 'Existing Name' },
+			});
+		});
 	});
 
 	describe('remove', () => {

@@ -157,6 +157,19 @@ describe('SpeciesService', () => {
 
 			await expect(service.update(999, updateSpeciesDto)).rejects.toThrow(SpeciesNotFoundException);
 		});
+
+		it('should throw SpeciesConflictException when updating with existing name', async () => {
+			const updateSpeciesDto: UpdateSpeciesDto = { name: 'Existing Species' };
+
+			const existingSpecies = { id: 2, name: 'Existing Species' };
+			mockSpeciesRepository.findOne.mockResolvedValue(existingSpecies);
+
+			await expect(service.update(1, updateSpeciesDto)).rejects.toThrow(SpeciesConflictException);
+			
+			expect(mockSpeciesRepository.findOne).toHaveBeenCalledWith({
+				where: { name: 'Existing Species' },
+			});
+		});
 	});
 
 	describe('remove', () => {

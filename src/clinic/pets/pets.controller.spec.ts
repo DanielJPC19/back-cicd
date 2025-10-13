@@ -43,6 +43,7 @@ describe('PetsController', () => {
 			const createPetDto: CreatePetDto = {
 				name: 'Buddy',
 				gender: PetGender.MALE,
+				species: 'Perro',
 				speciesId: 1,
 				breed: 'Golden Retriever',
 				birthDate: new Date('2020-01-01'),

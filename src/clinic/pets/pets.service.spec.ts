@@ -66,9 +66,10 @@ describe('PetsService', () => {
 			const createPetDto: CreatePetDto = {
 				name: 'Buddy',
 				gender: PetGender.MALE,
+				species: 'Perro',
 				speciesId: 1,
 				breed: 'Golden Retriever',
-				birthDate: '2020-01-01',
+				birthDate: new Date('2020-01-01'),
 				ownerId: 1,
 			};
 
@@ -189,6 +190,29 @@ describe('PetsService', () => {
 			const result = await service.update(1, updatePetDto);
 
 			expect(mockPetRepository.update).toHaveBeenCalledWith(1, updatePetDto);
+			expect(result).toEqual(updatedPet);
+		});
+
+		it('should update pet with new species', async () => {
+			const updatePetDto: UpdatePetDto = {
+				name: 'Buddy Updated',
+				speciesId: 2,
+			};
+
+			const mockSpecies = { id: 2, name: 'Gato' };
+			const updatedPet = { id: 1, name: 'Buddy Updated', species: mockSpecies };
+
+			mockSpeciesService.findOne.mockResolvedValue(mockSpecies);
+			mockPetRepository.update.mockResolvedValue({ affected: 1 });
+			mockPetRepository.findOne.mockResolvedValue(updatedPet);
+
+			const result = await service.update(1, updatePetDto);
+
+			expect(mockSpeciesService.findOne).toHaveBeenCalledWith(2);
+			expect(mockPetRepository.update).toHaveBeenCalledWith(1, expect.objectContaining({
+				name: 'Buddy Updated',
+				species: mockSpecies,
+			}));
 			expect(result).toEqual(updatedPet);
 		});
 
