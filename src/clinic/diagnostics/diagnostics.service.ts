@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { DiagnosticNotFoundException } from '../../common/exceptions';
 import { UsersService } from '../../core/auth/users/users.service';
+import { DiagnosticTypesService } from '../diagnostic-types/diagnostic-types.service';
 import { MedicalRecordsService } from '../medical-records/medical-records.service';
 import { CreateDiagnosticDto } from './dto/create-diagnostic.dto';
 import { UpdateDiagnosticDto } from './dto/update-diagnostic.dto';
@@ -15,7 +16,8 @@ export class DiagnosticsService {
 		@InjectRepository(Diagnostic)
 		private readonly diagnosticRepository: Repository<Diagnostic>,
 		private readonly medicalRecordsService: MedicalRecordsService,
-		private readonly usersService: UsersService
+		private readonly usersService: UsersService,
+		private readonly diagnosticTypesService: DiagnosticTypesService
 	) {}
 
 	async create(createDiagnosticDto: CreateDiagnosticDto): Promise<Diagnostic> {
@@ -24,15 +26,24 @@ export class DiagnosticsService {
 		
 		// Verificar que el veterinario existe
 		const veterinarian = await this.usersService.findOne(createDiagnosticDto.veterinarianId);
+		
+		// Verificar que el tipo de diagnóstico existe
+		const diagnosticType = await this.diagnosticTypesService.findOne(createDiagnosticDto.diagnosticTypeId);
 
 		const newDiagnostic = this.diagnosticRepository.create({
-			...createDiagnosticDto,
+			description: createDiagnosticDto.description,
+			severity: createDiagnosticDto.severity,
+			status: createDiagnosticDto.status,
+			recommendations: createDiagnosticDto.recommendations,
+			followUpInstructions: createDiagnosticDto.followUpInstructions,
+			followUpDate: createDiagnosticDto.followUpDate,
+			notes: createDiagnosticDto.notes,
+			type: diagnosticType,
 			medicalRecord: medicalRecord,
 			veterinarian: veterinarian
 		});
 
-		const savedDiagnostic = await this.diagnosticRepository.save(newDiagnostic);
-		return savedDiagnostic;
+		return await this.diagnosticRepository.save(newDiagnostic);
 	}
 
 	async findAll(): Promise<Diagnostic[]> {
@@ -85,7 +96,30 @@ export class DiagnosticsService {
 	}
 
 	async update(id: number, updateDiagnosticDto: UpdateDiagnosticDto): Promise<Diagnostic> {
-		const result = await this.diagnosticRepository.update(id, updateDiagnosticDto);
+		const updateData: any = {
+			description: updateDiagnosticDto.description,
+			severity: updateDiagnosticDto.severity,
+			status: updateDiagnosticDto.status,
+			recommendations: updateDiagnosticDto.recommendations,
+			followUpInstructions: updateDiagnosticDto.followUpInstructions,
+			followUpDate: updateDiagnosticDto.followUpDate,
+			notes: updateDiagnosticDto.notes
+		};
+
+		// Si se proporciona diagnosticTypeId, verificar que el tipo existe
+		if (updateDiagnosticDto.diagnosticTypeId) {
+			const diagnosticType = await this.diagnosticTypesService.findOne(updateDiagnosticDto.diagnosticTypeId);
+			updateData.type = diagnosticType;
+		}
+
+		// Limpiar valores undefined
+		Object.keys(updateData).forEach(key => {
+			if (updateData[key] === undefined) {
+				delete updateData[key];
+			}
+		});
+
+		const result = await this.diagnosticRepository.update(id, updateData);
 
 		if (!result.affected) {
 			throw new DiagnosticNotFoundException(id);

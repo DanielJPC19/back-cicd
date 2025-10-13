@@ -1,5 +1,6 @@
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 import { User } from '../../../core/auth/entities/user.entity';
+import { DiagnosticType } from '../../diagnostic-types/entities/diagnostic-type.entity';
 import { MedicalRecord } from '../../medical-records/entities/medical-record.entity';
 
 export enum DiagnosticSeverity {
@@ -21,8 +22,9 @@ export class Diagnostic {
 	@PrimaryGeneratedColumn()
 		id: number;
 
-	@Column({ nullable: false, unique: false })
-		condition: string;
+	@ManyToOne(() => DiagnosticType, (diagnosticType) => diagnosticType.diagnostics, { eager: true })
+	@JoinColumn({ name: 'diagnostic_type_id' })
+		type: DiagnosticType;
 
 	@Column({ type: 'text', nullable: true })
 		description: string;

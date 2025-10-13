@@ -1,4 +1,6 @@
 export * from './diagnostic-not-found.exception';
+export * from './diagnostic-type-conflict.exception';
+export * from './diagnostic-type-not-found.exception';
 export * from './medical-record-not-found.exception';
 export * from './permission-conflict.exception';
 export * from './permission-not-found.exception';

@@ -1,17 +1,9 @@
-import { PartialType, ApiPropertyOptional } from "@nestjs/swagger";
+import { ApiPropertyOptional, PartialType } from "@nestjs/swagger";
 import { IsDateString, IsEnum, IsOptional, IsString } from "class-validator";
-import { CreateDiagnosticDto } from "./create-diagnostic.dto";
 import { DiagnosticSeverity, DiagnosticStatus } from "../entities/diagnostic.entity";
+import { CreateDiagnosticDto } from "./create-diagnostic.dto";
 
 export class UpdateDiagnosticDto extends PartialType(CreateDiagnosticDto) {
-
-	@ApiPropertyOptional({
-		example: "Infección respiratoria",
-		description: "Condición o enfermedad diagnosticada",
-	})
-	@IsOptional()
-	@IsString()
-		condition?: string;
 
 	@ApiPropertyOptional({
 		example: "Infección bacteriana del tracto respiratorio superior",

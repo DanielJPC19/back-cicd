@@ -5,12 +5,13 @@ import { DiagnosticSeverity, DiagnosticStatus } from "../entities/diagnostic.ent
 export class CreateDiagnosticDto {
 
 	@ApiProperty({
-		example: "Infección respiratoria",
-		description: "Condición o enfermedad diagnosticada",
+		example: 1,
+		description: "ID del tipo de diagnóstico",
 	})
 	@IsNotEmpty()
-	@IsString()
-		condition: string;
+	@IsNumber()
+	@IsPositive()
+		diagnosticTypeId: number;
 
 	@ApiPropertyOptional({
 		example: "Infección bacteriana del tracto respiratorio superior",
