@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { AuthModule } from './core/auth/auth.module';
 import { ClinicModule } from './clinic/clinic.module';
-import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
+import { AuthModule } from './core/auth/auth.module';
 
 type SupportedDbTypes =
 	| 'mysql'
@@ -38,6 +38,7 @@ type SupportedDbTypes =
 		}),
 
 		AuthModule,
+		ClinicModule,
 	],
 	controllers: [AppController],
 	providers: [AppService],
