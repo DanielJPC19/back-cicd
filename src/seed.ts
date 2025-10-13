@@ -42,13 +42,17 @@ async function seed() {
 	console.log('Creando roles...');
 	const adminRole = AppDataSource.manager.create(Role, {
 		roleName: 'admin',
-		description: 'Administrador con todos los permisos',
+		description: 'Administrador del sistema - gestiona usuarios, roles y catálogos',
+	});
+	const veterinarianRole = AppDataSource.manager.create(Role, {
+		roleName: 'veterinarian',
+		description: 'Veterinario - maneja historias clínicas y diagnósticos médicos',
 	});
 	const userRole = AppDataSource.manager.create(Role, {
 		roleName: 'user',
-		description: 'Usuario estándar con permisos limitados',
+		description: 'Usuario/Propietario - solo lectura de información',
 	});
-	await AppDataSource.manager.save([adminRole, userRole]);
+	await AppDataSource.manager.save([adminRole, veterinarianRole, userRole]);
 
 	console.log('Creando permisos...');
 	const permissions = [
@@ -69,12 +73,27 @@ async function seed() {
 	const allPermissions = await AppDataSource.manager.find(Permission);
 
 	console.log('Asignando permisos...');
-	adminRole.permissions = allPermissions;
-	userRole.permissions = allPermissions.filter((p) =>
-		['user_read', 'permission_read', 'role_read', 'pet_read', 'medical_record_read', 'diagnostic_read', 'READ_SPECIES', 'READ_DIAGNOSTIC_TYPE'].includes(p.permissionName)
+	
+	// ADMIN: TODOS los permisos EXCEPTO medical records y diagnostics
+	adminRole.permissions = allPermissions.filter((p) =>
+		!['medical_record_create', 'medical_record_read', 'medical_record_update', 'medical_record_delete',
+		  'diagnostic_create', 'diagnostic_read', 'diagnostic_update', 'diagnostic_delete'].includes(p.permissionName)
 	);
 
-	await AppDataSource.manager.save([adminRole, userRole]);
+	// VETERINARIO: Solo funciones médicas
+	veterinarianRole.permissions = allPermissions.filter((p) =>
+		['pet_read', 'pet_update',
+		 'medical_record_create', 'medical_record_read', 'medical_record_update', 'medical_record_delete',
+		 'diagnostic_create', 'diagnostic_read', 'diagnostic_update', 'diagnostic_delete',
+		 'READ_SPECIES', 'READ_DIAGNOSTIC_TYPE'].includes(p.permissionName)
+	);
+
+	// USUARIO/PROPIETARIO: Solo lectura
+	userRole.permissions = allPermissions.filter((p) =>
+		['pet_read', 'medical_record_read', 'diagnostic_read', 'READ_SPECIES', 'READ_DIAGNOSTIC_TYPE'].includes(p.permissionName)
+	);
+
+	await AppDataSource.manager.save([adminRole, veterinarianRole, userRole]);
 
 	console.log('Creando especies...');
 	const species = [
@@ -103,14 +122,15 @@ async function seed() {
 	console.log('Creando usuarios...');
 	const saltRounds = 10;
 	const hashedPassword1 = await bcrypt.hash('password123', saltRounds);
-	const hashedPassword2 = await bcrypt.hash('userpass456', saltRounds);
-	const hashedPassword3 = await bcrypt.hash('owner123', saltRounds);
-	const hashedPassword4 = await bcrypt.hash('owner456', saltRounds);
+	const hashedPassword2 = await bcrypt.hash('vetpass123', saltRounds);
+	const hashedPassword3 = await bcrypt.hash('userpass456', saltRounds);
+	const hashedPassword4 = await bcrypt.hash('owner123', saltRounds);
+	const hashedPassword5 = await bcrypt.hash('owner456', saltRounds);
 
 	const users = [
 		{
 			firstName: 'Admin',
-			lastName: 'Principal',
+			lastName: 'Sistema',
 			email: 'admin@mail.com',
 			password: hashedPassword1,
 			phoneNumber: '1234567890',
@@ -118,10 +138,19 @@ async function seed() {
 			role: adminRole,
 		},
 		{
+			firstName: 'Dr. Juan',
+			lastName: 'Veterinario',
+			email: 'veterinario@mail.com',
+			password: hashedPassword2,
+			phoneNumber: '1111111111',
+			address: 'Clínica Veterinaria',
+			role: veterinarianRole,
+		},
+		{
 			firstName: 'Usuario',
 			lastName: 'Normal',
 			email: 'user@mail.com',
-			password: hashedPassword2,
+			password: hashedPassword3,
 			phoneNumber: '0987654321',
 			address: 'Ciudad',
 			role: userRole,
@@ -130,7 +159,7 @@ async function seed() {
 			firstName: 'Carlos',
 			lastName: 'Pérez',
 			email: 'carlos.perez@mail.com',
-			password: hashedPassword3,
+			password: hashedPassword4,
 			phoneNumber: '5551234567',
 			address: 'Avenida Principal 123',
 			role: userRole,
@@ -139,7 +168,7 @@ async function seed() {
 			firstName: 'María',
 			lastName: 'González',
 			email: 'maria.gonzalez@mail.com',
-			password: hashedPassword4,
+			password: hashedPassword5,
 			phoneNumber: '5557654321',
 			address: 'Calle Secundaria 456',
 			role: userRole,
@@ -147,9 +176,10 @@ async function seed() {
 	];
 	const savedUsers = await AppDataSource.manager.save(User, users);
 	const adminUser = savedUsers[0];
-	const normalUser = savedUsers[1];
-	const ownerCarlos = savedUsers[2];
-	const ownerMaria = savedUsers[3];
+	const veterinarianUser = savedUsers[1];
+	const normalUser = savedUsers[2];
+	const ownerCarlos = savedUsers[3];
+	const ownerMaria = savedUsers[4];
 
 	console.log('Creando mascotas...');
 	const [dogSpecies, catSpecies, birdSpecies] = species;
@@ -198,7 +228,7 @@ async function seed() {
 		
 		const medicalRecord = AppDataSource.manager.create(MedicalRecord, {
 			pet: pet,
-			veterinarian: adminUser,
+			veterinarian: veterinarianUser,
 			openingDate: new Date('2024-01-15'),
 			weight: weights[i],
 			size: sizes[i],
@@ -219,7 +249,7 @@ async function seed() {
 	const diagnosticData = [
 		{
 			medicalRecord: savedMedicalRecords[0],
-			veterinarian: adminUser,
+			veterinarian: veterinarianUser,
 			type: consultaGeneral,
 			visitDate: new Date('2024-01-15'),
 			reason: 'Consulta de rutina',
@@ -230,7 +260,7 @@ async function seed() {
 		},
 		{
 			medicalRecord: savedMedicalRecords[1],
-			veterinarian: adminUser,
+			veterinarian: veterinarianUser,
 			type: vacunacion,
 			visitDate: new Date('2024-02-10'),
 			reason: 'Vacunación anual',
@@ -241,7 +271,7 @@ async function seed() {
 		},
 		{
 			medicalRecord: savedMedicalRecords[2],
-			veterinarian: adminUser,
+			veterinarian: veterinarianUser,
 			type: controlRutinario,
 			visitDate: new Date('2024-03-05'),
 			reason: 'Control de crecimiento',

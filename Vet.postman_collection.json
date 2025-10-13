@@ -1,14 +1,15 @@
 {
 	"info": {
 		"_postman_id": "2f432159-454d-45ca-8d57-0b7b5a0f8cf3",
-		"name": "Vet",
+		"name": "Vet - Role-Based Access Control System",
+		"description": "**ROLE-BASED ACCESS CONTROL GUIDE**\n\n**ADMIN (admin@mail.com / password123)**\n- Auth folder: Users, Roles, Permissions\n- Catalogs: Species & Diagnostic Types (Full CRUD)\n- NO Clinic operations (Medical Records/Diagnostics)\n\n**VETERINARIAN (veterinario@mail.com / vetpass123)**\n- Clinic folder: Medical Records & Diagnostics (Full CRUD)\n- Catalogs: Species & Diagnostic Types (Read only)\n- NO Auth operations (Users/Roles/Permissions)\n\n**OWNER (carlos.perez@mail.com / owner123)**\n- Owner Operations: Read-only access to own pets\n- NO Create/Update/Delete operations anywhere\n\n**SECURITY**: Each role gets 403 Forbidden for unauthorized endpoints!",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "47238530",
 		"_collection_link": "https://gabrielernestoeb-5480584.postman.co/workspace/Gabriel-Escobar's-Workspace~29ec8656-9b7c-432d-84de-c2a56980a1a8/collection/47238530-2f432159-454d-45ca-8d57-0b7b5a0f8cf3?action=share&source=collection_link&creator=47238530"
 	},
 	"item": [
 		{
-			"name": "Log in",
+			"name": "Log in (All Users)",
 			"item": [
 				{
 					"name": "Admin Login",
@@ -46,32 +47,16 @@
 						}
 					},
 					"response": []
-				}
-			]
-		},
-		{
-			"name": "Auth",
-			"item": [
+				},
 				{
-					"name": "Create Permission",
+					"name": "Veterinario Login",
 					"event": [
 						{
 							"listen": "test",
 							"script": {
 								"exec": [
-									"const data = pm.response.json();",
-									"pm.collectionVariables.set('permissionId',data.id);"
-								],
-								"type": "text/javascript",
-								"packages": {},
-								"requests": {}
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
+									"const data = pm.response.json()",
+									"pm.collectionVariables.set('jwt_veterinario',data.access_token);"
 								],
 								"type": "text/javascript",
 								"packages": {},
@@ -82,6 +67,146 @@
 					"request": {
 						"method": "POST",
 						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"{{email_veterinario}}\",\n    \"password\": \"{{password_veterinario}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{login}}",
+							"host": [
+								"{{login}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Owner Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const data = pm.response.json()",
+									"pm.collectionVariables.set('jwt_owner',data.access_token);"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"{{email_owner}}\",\n    \"password\": \"{{password_owner}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{login}}",
+							"host": [
+								"{{login}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Owner Operations (carlos.perez@mail.com - Read Only)",
+			"item": [
+				{
+					"name": "Get My Pets",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_owner}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{pets}}",
+							"host": [
+								"{{pets}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get My Pet's Medical Records",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_owner}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{medical_records}}pet/1",
+							"host": [
+								"{{medical_records}}pet"
+							],
+							"path": [
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Species (Read Only)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_owner}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{species}}",
+							"host": [
+								"{{species}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Auth (ADMIN ONLY - admin@mail.com)",
+			"item": [
+				{
+					"name": "Create Permission",
+
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "raw",
 							"raw": "{\n    \"permissionName\": \"Permission 1\"\n}",
@@ -104,11 +229,17 @@
 					"name": "Get Permission by id",
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
 						"url": {
-							"raw": "{{permissions}}{{permissionId}}",
+							"raw": "{{permissions}}1",
 							"host": [
-								"{{permissions}}{{permissionId}}"
+								"{{permissions}}1"
 							]
 						}
 					},
@@ -118,7 +249,13 @@
 					"name": "Update Permission",
 					"request": {
 						"method": "PATCH",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "raw",
 							"raw": "{\n    \"permissionName\": \"Updated Permission 1\"\n}",
@@ -129,9 +266,9 @@
 							}
 						},
 						"url": {
-							"raw": "{{permissions}}{{permissionId}}",
+							"raw": "{{permissions}}1",
 							"host": [
-								"{{permissions}}{{permissionId}}"
+								"{{permissions}}1"
 							]
 						}
 					},
@@ -140,22 +277,17 @@
 				{
 					"name": "Create Rol",
 					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const data = pm.response.json()",
-									"pm.collectionVariables.set('roleId',data.id);"
-								],
-								"type": "text/javascript",
-								"packages": {},
-								"requests": {}
-							}
-						}
+
 					],
 					"request": {
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "raw",
 							"raw": "{\n\n    \"roleName\": \"Role 1\",\n    \"description\": \"Role 1 Description\"\n\n}",
@@ -178,11 +310,17 @@
 					"name": "Get Rol by id",
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
 						"url": {
-							"raw": "{{roles}}{{roleId}}",
+							"raw": "{{roles}}1",
 							"host": [
-								"{{roles}}{{roleId}}"
+								"{{roles}}1"
 							]
 						}
 					},
@@ -192,7 +330,13 @@
 					"name": "Update Rol",
 					"request": {
 						"method": "PATCH",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "raw",
 							"raw": "{\n\n    \"roleName\": \"Updated Role 1\",\n    \"description\": \"Updated Role 1 Description\"\n\n}",
@@ -203,9 +347,9 @@
 							}
 						},
 						"url": {
-							"raw": "{{roles}}{{roleId}}",
+							"raw": "{{roles}}1",
 							"host": [
-								"{{roles}}{{roleId}}"
+								"{{roles}}1"
 							]
 						}
 					},
@@ -215,10 +359,16 @@
 					"name": "Add Permission to Role",
 					"request": {
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\n    \"roleId\": {{roleId}},\n    \"permissionId\":{{permissionId}}\n\n\n}",
+							"raw": "{\n\n    \"roleId\": 1,\n    \"permissionId\": 1\n\n\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -237,18 +387,7 @@
 				{
 					"name": "Create User",
 					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const data = pm.response.json()",
-									"pm.collectionVariables.set('userId',data.id);"
-								],
-								"type": "text/javascript",
-								"packages": {},
-								"requests": {}
-							}
-						},
+
 						{
 							"listen": "prerequest",
 							"script": {
@@ -265,7 +404,13 @@
 					],
 					"request": {
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "raw",
 							"raw": "{\n  \"email\": \"juan.perez@example.com\",\n  \"firstName\": \"Juan\",\n  \"lastName\": \"Pérez\",\n  \"password\": \"Secreta123\",\n  \"phoneNumber\": \"3001234567\",\n  \"address\": \"Calle Falsa 123, Bogotá\"\n\n}\n",
@@ -288,7 +433,13 @@
 					"name": "Update User",
 					"request": {
 						"method": "PATCH",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "raw",
 							"raw": "{\n  \"phoneNumber\": \"9000000000\",\n  \"address\": \"Calle Falsa 22222, Bogotá\"\n}\n\n",
@@ -299,9 +450,9 @@
 							}
 						},
 						"url": {
-							"raw": "{{users}}{{userId}}",
+							"raw": "{{users}}1",
 							"host": [
-								"{{users}}{{userId}}"
+								"{{users}}1"
 							]
 						}
 					},
@@ -311,11 +462,17 @@
 					"name": "Get User by id",
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
 						"url": {
-							"raw": "{{users}}{{userId}}",
+							"raw": "{{users}}1",
 							"host": [
-								"{{users}}{{userId}}"
+								"{{users}}1"
 							]
 						}
 					},
@@ -325,10 +482,16 @@
 					"name": "Update User Role",
 					"request": {
 						"method": "PATCH",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\n  \"roleId\": {{roleId}}\n}\n",
+							"raw": "{\n\n  \"roleId\": 1\n}\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -336,9 +499,9 @@
 							}
 						},
 						"url": {
-							"raw": "{{users}}{{userId}}/role",
+							"raw": "{{users}}1/role",
 							"host": [
-								"{{users}}{{userId}}"
+								"{{users}}1"
 							],
 							"path": [
 								"role"
@@ -421,7 +584,7 @@
 			]
 		},
 		{
-			"name": "Catalogs - Species",
+			"name": "Catalogs - Species (ADMIN: Full CRUD, VETERINARIAN: Read Only)",
 			"item": [
 				{
 					"name": "Get All Species",
@@ -430,7 +593,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer {{jwt_admin}}",
+								"value": "Bearer {{jwt_veterinario}}",
 								"type": "text"
 							}
 						],
@@ -444,18 +607,7 @@
 				},
 				{
 					"name": "Create Species",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const data = pm.response.json();",
-									"pm.collectionVariables.set('speciesId', data.id);"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
+
 					"request": {
 						"method": "POST",
 						"header": [
@@ -489,14 +641,14 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer {{jwt_admin}}",
+								"value": "Bearer {{jwt_veterinario}}",
 								"type": "text"
 							}
 						],
 						"url": {
-							"raw": "{{species}}{{speciesId}}",
+							"raw": "{{species}}1",
 							"host": [
-								"{{species}}{{speciesId}}"
+								"{{species}}1"
 							]
 						}
 					}
@@ -522,9 +674,9 @@
 							}
 						},
 						"url": {
-							"raw": "{{species}}{{speciesId}}",
+							"raw": "{{species}}1",
 							"host": [
-								"{{species}}{{speciesId}}"
+								"{{species}}1"
 							]
 						}
 					}
@@ -541,9 +693,9 @@
 							}
 						],
 						"url": {
-							"raw": "{{species}}{{speciesId}}",
+							"raw": "{{species}}1",
 							"host": [
-								"{{species}}{{speciesId}}"
+								"{{species}}1"
 							]
 						}
 					}
@@ -551,7 +703,7 @@
 			]
 		},
 		{
-			"name": "Catalogs - Diagnostic Types",
+			"name": "Catalogs - Diagnostic Types (ADMIN: Full CRUD, VETERINARIAN: Read Only)",
 			"item": [
 				{
 					"name": "Get All Diagnostic Types",
@@ -560,7 +712,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer {{jwt_admin}}",
+								"value": "Bearer {{jwt_veterinario}}",
 								"type": "text"
 							}
 						],
@@ -574,18 +726,7 @@
 				},
 				{
 					"name": "Create Diagnostic Type",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const data = pm.response.json();",
-									"pm.collectionVariables.set('diagnosticTypeId', data.id);"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
+
 					"request": {
 						"method": "POST",
 						"header": [
@@ -619,18 +760,19 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer {{jwt_admin}}",
+								"value": "Bearer {{jwt_veterinario}}",
 								"type": "text"
 							}
 						],
 						"url": {
-							"raw": "{{diagnostic_types}}{{diagnosticTypeId}}",
+							"raw": "{{diagnostic_types}}1",
 							"host": [
-								"{{diagnostic_types}}{{diagnosticTypeId}}"
+								"{{diagnostic_types}}1"
 							]
 						}
 					}
 				},
+
 				{
 					"name": "Update Diagnostic Type",
 					"request": {
@@ -652,9 +794,9 @@
 							}
 						},
 						"url": {
-							"raw": "{{diagnostic_types}}{{diagnosticTypeId}}",
+							"raw": "{{diagnostic_types}}1",
 							"host": [
-								"{{diagnostic_types}}{{diagnosticTypeId}}"
+								"{{diagnostic_types}}1"
 							]
 						}
 					}
@@ -671,9 +813,9 @@
 							}
 						],
 						"url": {
-							"raw": "{{diagnostic_types}}{{diagnosticTypeId}}",
+							"raw": "{{diagnostic_types}}1",
 							"host": [
-								"{{diagnostic_types}}{{diagnosticTypeId}}"
+								"{{diagnostic_types}}1"
 							]
 						}
 					}
@@ -681,7 +823,7 @@
 			]
 		},
 		{
-			"name": "Clinic - Pets",
+			"name": "Clinic - Pets (ADMIN: CRUD, VETERINARIAN: Read/Update, OWNER: Read Own)",
 			"item": [
 				{
 					"name": "Get All Pets",
@@ -690,7 +832,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer {{jwt_admin}}",
+								"value": "Bearer {{jwt_veterinario}}",
 								"type": "text"
 							}
 						],
@@ -704,18 +846,6 @@
 				},
 				{
 					"name": "Create Pet",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const data = pm.response.json();",
-									"pm.collectionVariables.set('petId', data.id);"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
 					"request": {
 						"method": "POST",
 						"header": [
@@ -768,7 +898,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer {{jwt_admin}}",
+								"value": "Bearer {{jwt_veterinario}}",
 								"type": "text"
 							}
 						],
@@ -815,7 +945,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer {{jwt_admin}}",
+								"value": "Bearer {{jwt_veterinario}}",
 								"type": "text"
 							}
 						],
@@ -837,7 +967,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer {{jwt_admin}}",
+								"value": "Bearer {{jwt_veterinario}}",
 								"type": "text"
 							}
 						],
@@ -855,7 +985,7 @@
 			]
 		},
 		{
-			"name": "Clinic - Medical Records",
+			"name": "Clinic - Medical Records (VETERINARIAN ONLY - Full CRUD)",
 			"item": [
 				{
 					"name": "Get All Medical Records",
@@ -864,7 +994,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer {{jwt_admin}}",
+								"value": "Bearer {{jwt_veterinario}}",
 								"type": "text"
 							}
 						],
@@ -878,24 +1008,12 @@
 				},
 				{
 					"name": "Create Medical Record",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const data = pm.response.json();",
-									"pm.collectionVariables.set('medicalRecordId', data.id);"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
 					"request": {
 						"method": "POST",
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer {{jwt_admin}}",
+								"value": "Bearer {{jwt_veterinario}}",
 								"type": "text"
 							}
 						],
@@ -923,7 +1041,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer {{jwt_admin}}",
+								"value": "Bearer {{jwt_veterinario}}",
 								"type": "text"
 							}
 						],
@@ -942,7 +1060,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer {{jwt_admin}}",
+								"value": "Bearer {{jwt_veterinario}}",
 								"type": "text"
 							}
 						],
@@ -970,7 +1088,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer {{jwt_admin}}",
+								"value": "Bearer {{jwt_veterinario}}",
 								"type": "text"
 							}
 						],
@@ -989,7 +1107,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer {{jwt_admin}}",
+								"value": "Bearer {{jwt_veterinario}}",
 								"type": "text"
 							}
 						],
@@ -1011,7 +1129,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer {{jwt_admin}}",
+								"value": "Bearer {{jwt_veterinario}}",
 								"type": "text"
 							}
 						],
@@ -1029,7 +1147,7 @@
 			]
 		},
 		{
-			"name": "Clinic - Diagnostics",
+			"name": "Clinic - Diagnostics (VETERINARIAN ONLY - Full CRUD)",
 			"item": [
 				{
 					"name": "Get All Diagnostics",
@@ -1038,7 +1156,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer {{jwt_admin}}",
+								"value": "Bearer {{jwt_veterinario}}",
 								"type": "text"
 							}
 						],
@@ -1052,24 +1170,12 @@
 				},
 				{
 					"name": "Create Diagnostic",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const data = pm.response.json();",
-									"pm.collectionVariables.set('diagnosticId', data.id);"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
 					"request": {
 						"method": "POST",
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer {{jwt_admin}}",
+								"value": "Bearer {{jwt_veterinario}}",
 								"type": "text"
 							}
 						],
@@ -1097,7 +1203,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer {{jwt_admin}}",
+								"value": "Bearer {{jwt_veterinario}}",
 								"type": "text"
 							}
 						],
@@ -1116,7 +1222,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer {{jwt_admin}}",
+								"value": "Bearer {{jwt_veterinario}}",
 								"type": "text"
 							}
 						],
@@ -1144,7 +1250,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer {{jwt_admin}}",
+								"value": "Bearer {{jwt_veterinario}}",
 								"type": "text"
 							}
 						],
@@ -1163,7 +1269,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer {{jwt_admin}}",
+								"value": "Bearer {{jwt_veterinario}}",
 								"type": "text"
 							}
 						],
@@ -1185,7 +1291,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer {{jwt_admin}}",
+								"value": "Bearer {{jwt_veterinario}}",
 								"type": "text"
 							}
 						],
@@ -1207,7 +1313,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer {{jwt_admin}}",
+								"value": "Bearer {{jwt_veterinario}}",
 								"type": "text"
 							}
 						],
@@ -1229,7 +1335,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer {{jwt_admin}}",
+								"value": "Bearer {{jwt_veterinario}}",
 								"type": "text"
 							}
 						],
@@ -1254,7 +1360,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer {{jwt_admin}}",
+								"value": "Bearer {{jwt_veterinario}}",
 								"type": "text"
 							}
 						],
@@ -1350,41 +1456,34 @@
 			"value": ""
 		},
 		{
+			"key": "email_veterinario",
+			"value": "veterinario@mail.com"
+		},
+		{
+			"key": "password_veterinario",
+			"value": "vetpass123"
+		},
+		{
+			"key": "jwt_veterinario",
+			"value": ""
+		},
+		{
+			"key": "email_owner",
+			"value": "carlos.perez@mail.com"
+		},
+		{
+			"key": "password_owner",
+			"value": "owner123"
+		},
+		{
+			"key": "jwt_owner",
+			"value": ""
+		},
+		{
 			"key": "jwt_user",
 			"value": ""
 		},
-		{
-			"key": "userId",
-			"value": ""
-		},
-		{
-			"key": "roleId",
-			"value": ""
-		},
-		{
-			"key": "permissionId",
-			"value": ""
-		},
-		{
-			"key": "speciesId",
-			"value": ""
-		},
-		{
-			"key": "diagnosticTypeId",
-			"value": ""
-		},
-		{
-			"key": "petId",
-			"value": ""
-		},
-		{
-			"key": "medicalRecordId",
-			"value": ""
-		},
-		{
-			"key": "diagnosticId",
-			"value": ""
-		},
+
 		{
 			"key": "password_user",
 			"value": "userpass456"
