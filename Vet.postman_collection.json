@@ -421,7 +421,7 @@
 			]
 		},
 		{
-			"name": "Clinic - Species",
+			"name": "Catalogs - Species",
 			"item": [
 				{
 					"name": "Get All Species",
@@ -551,7 +551,7 @@
 			]
 		},
 		{
-			"name": "Clinic - Diagnostic Types",
+			"name": "Catalogs - Diagnostic Types",
 			"item": [
 				{
 					"name": "Get All Diagnostic Types",
