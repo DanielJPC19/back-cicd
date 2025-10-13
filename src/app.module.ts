@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { CatalogsModule } from './catalogs/catalogs.module';
 import { ClinicModule } from './clinic/clinic.module';
 import { AuthModule } from './core/auth/auth.module';
 
@@ -38,6 +39,7 @@ type SupportedDbTypes =
 		}),
 
 		AuthModule,
+		CatalogsModule,
 		ClinicModule,
 	],
 	controllers: [AppController],

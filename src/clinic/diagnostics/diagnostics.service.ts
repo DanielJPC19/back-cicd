@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { DiagnosticTypesService } from '../../catalogs/diagnostic-types/diagnostic-types.service';
 import { DiagnosticNotFoundException } from '../../common/exceptions';
 import { UsersService } from '../../core/auth/users/users.service';
-import { DiagnosticTypesService } from '../diagnostic-types/diagnostic-types.service';
 import { MedicalRecordsService } from '../medical-records/medical-records.service';
 import { CreateDiagnosticDto } from './dto/create-diagnostic.dto';
 import { UpdateDiagnosticDto } from './dto/update-diagnostic.dto';

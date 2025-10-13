@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { SpeciesService } from '../../catalogs/species/species.service';
 import { PetNotFoundException } from '../../common/exceptions';
 import { UsersService } from '../../core/auth/users/users.service';
-import { SpeciesService } from '../species/species.service';
 import { CreatePetDto } from './dto/create-pet.dto';
 import { UpdatePetDto } from './dto/update-pet.dto';
 import { Pet } from './entities/pet.entity';

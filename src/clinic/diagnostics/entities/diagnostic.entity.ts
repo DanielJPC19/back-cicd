@@ -1,6 +1,6 @@
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { DiagnosticType } from '../../../catalogs/diagnostic-types/entities/diagnostic-type.entity';
 import { User } from '../../../core/auth/entities/user.entity';
-import { DiagnosticType } from '../../diagnostic-types/entities/diagnostic-type.entity';
 import { MedicalRecord } from '../../medical-records/entities/medical-record.entity';
 
 export enum DiagnosticSeverity {

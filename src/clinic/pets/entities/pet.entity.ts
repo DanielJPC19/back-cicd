@@ -1,7 +1,7 @@
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Species } from '../../../catalogs/species/entities/species.entity';
 import { User } from '../../../core/auth/entities/user.entity';
 import { MedicalRecord } from '../../medical-records/entities/medical-record.entity';
-import { Species } from '../../species/entities/species.entity';
 
 export enum PetGender {
 	MALE = 'male',
