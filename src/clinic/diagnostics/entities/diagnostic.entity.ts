@@ -10,13 +10,6 @@ export enum DiagnosticSeverity {
 	CRITICAL = 'critical'
 }
 
-export enum DiagnosticStatus {
-	PRELIMINARY = 'preliminary',
-	CONFIRMED = 'confirmed',
-	RULED_OUT = 'ruled_out',
-	UNDER_INVESTIGATION = 'under_investigation'
-}
-
 @Entity('diagnostics')
 export class Diagnostic {
 	@PrimaryGeneratedColumn()
@@ -38,35 +31,11 @@ export class Diagnostic {
 	@Column({ type: 'text', nullable: true })
 		examination: string;
 
-	@Column({ type: 'text', nullable: true })
-		treatment: string;
-
-	@Column({ type: 'text', nullable: true })
-		prescription: string;
-
-	@Column({ type: 'text', nullable: true })
-		description: string;
-
 	@Column({ type: 'enum', enum: DiagnosticSeverity, nullable: false })
 		severity: DiagnosticSeverity;
 
-	@Column({ type: 'enum', enum: DiagnosticStatus, nullable: false, default: DiagnosticStatus.PRELIMINARY })
-		status: DiagnosticStatus;
-
-	@Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
-		cost: number;
-
 	@Column({ type: 'text', nullable: true })
 		recommendations: string;
-
-	@Column({ type: 'text', nullable: true })
-		followUpInstructions: string;
-
-	@Column({ type: 'date', nullable: true })
-		followUpDate: Date;
-
-	@Column({ type: 'text', nullable: true })
-		notes: string;
 
 	@Column({ nullable: false, unique: false, default: false })
 		isDeleted: boolean;

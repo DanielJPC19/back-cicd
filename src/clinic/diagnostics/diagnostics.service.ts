@@ -35,16 +35,8 @@ export class DiagnosticsService {
 			reason: createDiagnosticDto.reason,
 			symptoms: createDiagnosticDto.symptoms,
 			examination: createDiagnosticDto.examination,
-			treatment: createDiagnosticDto.treatment,
-			prescription: createDiagnosticDto.prescription,
-			description: createDiagnosticDto.description,
 			severity: createDiagnosticDto.severity,
-			status: createDiagnosticDto.status,
-			cost: createDiagnosticDto.cost,
 			recommendations: createDiagnosticDto.recommendations,
-			followUpInstructions: createDiagnosticDto.followUpInstructions,
-			followUpDate: createDiagnosticDto.followUpDate,
-			notes: createDiagnosticDto.notes,
 			type: diagnosticType,
 			medicalRecord: medicalRecord,
 			veterinarian: veterinarian
@@ -103,28 +95,18 @@ export class DiagnosticsService {
 	}
 
 	async update(id: number, updateDiagnosticDto: UpdateDiagnosticDto): Promise<Diagnostic> {
-		const updateData: any = {
-			description: updateDiagnosticDto.description,
-			severity: updateDiagnosticDto.severity,
-			status: updateDiagnosticDto.status,
-			recommendations: updateDiagnosticDto.recommendations,
-			followUpInstructions: updateDiagnosticDto.followUpInstructions,
-			followUpDate: updateDiagnosticDto.followUpDate,
-			notes: updateDiagnosticDto.notes
-		};
-
 		// Si se proporciona diagnosticTypeId, verificar que el tipo existe
 		if (updateDiagnosticDto.diagnosticTypeId) {
-			const diagnosticType = await this.diagnosticTypesService.findOne(updateDiagnosticDto.diagnosticTypeId);
-			updateData.type = diagnosticType;
+			await this.diagnosticTypesService.findOne(updateDiagnosticDto.diagnosticTypeId);
 		}
 
-		// Limpiar valores undefined
-		Object.keys(updateData).forEach(key => {
-			if (updateData[key] === undefined) {
-				delete updateData[key];
+		// Limpiar valores undefined del DTO
+		const updateData = Object.keys(updateDiagnosticDto).reduce((acc, key) => {
+			if (updateDiagnosticDto[key] !== undefined) {
+				acc[key] = updateDiagnosticDto[key];
 			}
-		});
+			return acc;
+		}, {});
 
 		const result = await this.diagnosticRepository.update(id, updateData);
 

@@ -1,6 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
-import { IsDateString, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsPositive, IsString, Max, Min } from "class-validator";
-import { DiagnosticSeverity, DiagnosticStatus } from "../entities/diagnostic.entity";
+import { IsDateString, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsPositive, IsString } from "class-validator";
+import { DiagnosticSeverity } from "../entities/diagnostic.entity";
 
 export class CreateDiagnosticDto {
 
@@ -62,30 +62,6 @@ export class CreateDiagnosticDto {
 	@IsString()
 		examination?: string;
 
-	@ApiPropertyOptional({
-		example: "Reposo y medicación antibiótica",
-		description: "Tratamiento aplicado",
-	})
-	@IsOptional()
-	@IsString()
-		treatment?: string;
-
-	@ApiPropertyOptional({
-		example: "Amoxicilina 250mg cada 12 horas por 7 días",
-		description: "Prescripción médica",
-	})
-	@IsOptional()
-	@IsString()
-		prescription?: string;
-
-	@ApiPropertyOptional({
-		example: "Infección bacteriana del tracto respiratorio superior",
-		description: "Descripción detallada del diagnóstico",
-	})
-	@IsOptional()
-	@IsString()
-		description?: string;
-
 	@ApiProperty({
 		example: DiagnosticSeverity.MODERATE,
 		description: "Severidad del diagnóstico",
@@ -95,29 +71,8 @@ export class CreateDiagnosticDto {
 		severity: DiagnosticSeverity;
 
 	@ApiPropertyOptional({
-		example: DiagnosticStatus.PRELIMINARY,
-		description: "Estado del diagnóstico",
-		enum: DiagnosticStatus,
-	})
-	@IsOptional()
-	@IsEnum(DiagnosticStatus)
-		status?: DiagnosticStatus;
-
-	@ApiPropertyOptional({
-		example: 75000,
-		description: "Costo de la consulta en pesos",
-		minimum: 0,
-		maximum: 99999999.99,
-	})
-	@IsOptional()
-	@IsNumber({ maxDecimalPlaces: 2 })
-	@Min(0)
-	@Max(99999999.99)
-		cost?: number;
-
-	@ApiPropertyOptional({
-		example: "Administrar antibióticos y mantener reposo",
-		description: "Recomendaciones para el tratamiento",
+		example: "Administrar antibióticos, reposo por 7 días, regresar para seguimiento",
+		description: "Recomendaciones y pasos a seguir",
 	})
 	@IsOptional()
 	@IsString()
