@@ -1,15 +1,15 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
-import { User } from '../entities/user.entity';
-import { UsersService } from './users.service';
-import { RolesService } from '../roles/roles.service';
 import { UserConflict, UserNotFoundException } from '../../../common/exceptions';
 import { CreateUserDto } from '../dto/create-user.dto';
-import { UpdateUserDto } from '../dto/update-user.dto';
 import { SetUserRoleDto } from '../dto/update-user-role.dto';
-import { Role } from '../entities/role.entity';
+import { UpdateUserDto } from '../dto/update-user.dto';
 import { Permission } from '../entities/permission.entity';
+import { Role } from '../entities/role.entity';
+import { User } from '../entities/user.entity';
+import { RolesService } from '../roles/roles.service';
+import { UsersService } from './users.service';
 
 jest.mock('bcrypt');
 
@@ -24,6 +24,7 @@ describe('UsersService', () => {
 		update: jest.Mock;
 		softDelete: jest.Mock;
 		find: jest.Mock;
+		findAndCount: jest.Mock;
 	};
 	let mockRolesService: {
 		findByName: jest.Mock;
@@ -89,6 +90,7 @@ describe('UsersService', () => {
 			update: jest.fn(),
 			softDelete: jest.fn(),
 			find: jest.fn(),
+			findAndCount: jest.fn(),
 		};
 
 		mockRolesService = {
@@ -297,21 +299,27 @@ describe('UsersService', () => {
 
 	describe('findOne', () => {
 		it('should find user by id successfully', async () => {
-			mockUserRepository.findOneBy.mockResolvedValue(mockUser);
+			mockUserRepository.findOne.mockResolvedValue(mockUser);
 
 			const result = await service.findOne(1);
 
-			expect(mockUserRepository.findOneBy).toHaveBeenCalledWith({ id: 1 });
+			expect(mockUserRepository.findOne).toHaveBeenCalledWith({
+				where: { id: 1 },
+				relations: ['role', 'role.permissions'],
+			});
 			expect(result).toEqual(mockUser);
 		});
 
 		it('should throw UserNotFoundException when user does not exist', async () => {
-			mockUserRepository.findOneBy.mockResolvedValue(null);
+			mockUserRepository.findOne.mockResolvedValue(null);
 
 			await expect(service.findOne(999)).rejects.toThrow(
 				UserNotFoundException,
 			);
-			expect(mockUserRepository.findOneBy).toHaveBeenCalledWith({ id: 999 });
+			expect(mockUserRepository.findOne).toHaveBeenCalledWith({
+				where: { id: 999 },
+				relations: ['role', 'role.permissions'],
+			});
 		});
 
 		it('should work with different valid IDs', async () => {
@@ -322,7 +330,7 @@ describe('UsersService', () => {
 					...mockUser,
 					id,
 				};
-				mockUserRepository.findOneBy.mockResolvedValue(userWithId);
+				mockUserRepository.findOne.mockResolvedValue(userWithId);
 
 				const result = await service.findOne(id);
 
@@ -331,7 +339,7 @@ describe('UsersService', () => {
 		});
 
 		it('should return user with all properties', async () => {
-			mockUserRepository.findOneBy.mockResolvedValue(mockUser);
+			mockUserRepository.findOne.mockResolvedValue(mockUser);
 
 			const result = await service.findOne(1);
 
@@ -357,12 +365,15 @@ describe('UsersService', () => {
 			};
 
 			mockUserRepository.update.mockResolvedValue({ affected: 1 });
-			mockUserRepository.findOneBy.mockResolvedValue(updatedUser);
+			mockUserRepository.findOne.mockResolvedValue(updatedUser);
 
 			const result = await service.update(1, updateDto);
 
 			expect(mockUserRepository.update).toHaveBeenCalledWith(1, updateDto);
-			expect(mockUserRepository.findOneBy).toHaveBeenCalledWith({ id: 1 });
+			expect(mockUserRepository.findOne).toHaveBeenCalledWith({
+				where: { id: 1 },
+				relations: ['role', 'role.permissions'],
+			});
 			expect(result).toEqual(updatedUser);
 		});
 
@@ -384,7 +395,7 @@ describe('UsersService', () => {
 			};
 
 			mockUserRepository.update.mockResolvedValue({ affected: 1 });
-			mockUserRepository.findOneBy.mockResolvedValue(mockUser);
+			mockUserRepository.findOne.mockResolvedValue(mockUser);
 
 			await service.update(1, updateDto);
 
@@ -400,7 +411,7 @@ describe('UsersService', () => {
 			};
 
 			mockUserRepository.update.mockResolvedValue({ affected: 1 });
-			mockUserRepository.findOneBy.mockResolvedValue(mockUser);
+			mockUserRepository.findOne.mockResolvedValue(mockUser);
 
 			await service.update(1, updateDto);
 
@@ -456,7 +467,7 @@ describe('UsersService', () => {
 				roleName: 'admin',
 			};
 
-			mockUserRepository.findOneBy.mockResolvedValue(mockUser);
+			mockUserRepository.findOne.mockResolvedValue(mockUser);
 			mockRolesService.findOne.mockResolvedValue(adminRole);
 			mockUserRepository.save.mockResolvedValue({
 				...mockUser,
@@ -465,7 +476,10 @@ describe('UsersService', () => {
 
 			await service.setUserRole(1, setUserRoleDto);
 
-			expect(mockUserRepository.findOneBy).toHaveBeenCalledWith({ id: 1 });
+			expect(mockUserRepository.findOne).toHaveBeenCalledWith({
+				where: { id: 1 },
+				relations: ['role', 'role.permissions'],
+			});
 			expect(mockRolesService.findOne).toHaveBeenCalledWith(2);
 			expect(mockUserRepository.save).toHaveBeenCalled();
 		});
@@ -475,7 +489,7 @@ describe('UsersService', () => {
 				roleId: 2,
 			};
 
-			mockUserRepository.findOneBy.mockResolvedValue(null);
+			mockUserRepository.findOne.mockResolvedValue(null);
 
 			await expect(service.setUserRole(999, setUserRoleDto)).rejects.toThrow(
 				UserNotFoundException,
@@ -493,7 +507,7 @@ describe('UsersService', () => {
 				roleName: 'admin',
 			};
 
-			mockUserRepository.findOneBy.mockResolvedValue(mockUser);
+			mockUserRepository.findOne.mockResolvedValue(mockUser);
 			mockRolesService.findOne.mockResolvedValue(adminRole);
 			mockUserRepository.save.mockResolvedValue({
 				...mockUser,
@@ -510,7 +524,7 @@ describe('UsersService', () => {
 				roleId: 2,
 			};
 
-			mockUserRepository.findOneBy.mockResolvedValue(mockUser);
+			mockUserRepository.findOne.mockResolvedValue(mockUser);
 			mockRolesService.findOne.mockResolvedValue(mockRole);
 			mockUserRepository.save.mockResolvedValue(mockUser);
 
@@ -532,7 +546,7 @@ describe('UsersService', () => {
 					id: roleId,
 				};
 
-				mockUserRepository.findOneBy.mockResolvedValue(mockUser);
+				mockUserRepository.findOne.mockResolvedValue(mockUser);
 				mockRolesService.findOne.mockResolvedValue(role);
 				mockUserRepository.save.mockResolvedValue({
 					...mockUser,
@@ -547,27 +561,162 @@ describe('UsersService', () => {
 	});
 
 	describe('findAll', () => {
-		it('should return all users', async () => {
+		it('should return paginated users with metadata', async () => {
+			const paginationDto = {
+				page: 1,
+				limit: 10,
+			};
+
 			const users: User[] = [mockUser, mockUser2];
-			mockUserRepository.find.mockResolvedValue(users);
+			mockUserRepository.findAndCount.mockResolvedValue([users, 2]);
 
-			const result = await service.findAll();
+			const result = await service.findAll(paginationDto);
 
-			expect(mockUserRepository.find).toHaveBeenCalled();
-			expect(result).toEqual(users);
-			expect(result.length).toBe(2);
+			expect(mockUserRepository.findAndCount).toHaveBeenCalledWith({
+				skip: 0,
+				take: 10,
+				order: { id: 'ASC' },
+			});
+			expect(result.data).toEqual(users);
+			expect(result.total).toBe(2);
+			expect(result.page).toBe(1);
+			expect(result.limit).toBe(10);
+			expect(result.totalPages).toBe(1);
+			expect(result.hasNextPage).toBe(false);
+			expect(result.hasPrevPage).toBe(false);
 		});
 
 		it('should return empty array when no users exist', async () => {
-			mockUserRepository.find.mockResolvedValue([]);
+			const paginationDto = {
+				page: 1,
+				limit: 10,
+			};
 
-			const result = await service.findAll();
+			mockUserRepository.findAndCount.mockResolvedValue([[], 0]);
 
-			expect(result).toEqual([]);
-			expect(result.length).toBe(0);
+			const result = await service.findAll(paginationDto);
+
+			expect(result.data).toEqual([]);
+			expect(result.total).toBe(0);
+			expect(result.totalPages).toBe(0);
+			expect(result.hasNextPage).toBe(false);
+			expect(result.hasPrevPage).toBe(false);
+		});
+
+		it('should calculate correct skip value for pagination', async () => {
+			const paginationDto = {
+				page: 3,
+				limit: 5,
+			};
+
+			mockUserRepository.findAndCount.mockResolvedValue([[mockUser], 15]);
+
+			await service.findAll(paginationDto);
+
+			expect(mockUserRepository.findAndCount).toHaveBeenCalledWith({
+				skip: 10,
+				take: 5,
+				order: { id: 'ASC' },
+			});
+		});
+
+		it('should return correct pagination metadata for page 2', async () => {
+			const paginationDto = {
+				page: 2,
+				limit: 10,
+			};
+
+			const users: User[] = [mockUser, mockUser2];
+			mockUserRepository.findAndCount.mockResolvedValue([users, 25]);
+
+			const result = await service.findAll(paginationDto);
+
+			expect(result.page).toBe(2);
+			expect(result.limit).toBe(10);
+			expect(result.totalPages).toBe(3);
+			expect(result.hasNextPage).toBe(true);
+			expect(result.hasPrevPage).toBe(true);
+		});
+
+		it('should set hasNextPage to false on last page', async () => {
+			const paginationDto = {
+				page: 3,
+				limit: 10,
+			};
+
+			const users: User[] = [mockUser];
+			mockUserRepository.findAndCount.mockResolvedValue([users, 25]);
+
+			const result = await service.findAll(paginationDto);
+
+			expect(result.hasNextPage).toBe(false);
+			expect(result.hasPrevPage).toBe(true);
+		});
+
+		it('should set hasPrevPage to false on first page', async () => {
+			const paginationDto = {
+				page: 1,
+				limit: 10,
+			};
+
+			const users: User[] = [mockUser, mockUser2];
+			mockUserRepository.findAndCount.mockResolvedValue([users, 25]);
+
+			const result = await service.findAll(paginationDto);
+
+			expect(result.hasPrevPage).toBe(false);
+			expect(result.hasNextPage).toBe(true);
+		});
+
+		it('should calculate totalPages correctly with exact division', async () => {
+			const paginationDto = {
+				page: 1,
+				limit: 5,
+			};
+
+			mockUserRepository.findAndCount.mockResolvedValue([[mockUser], 10]);
+
+			const result = await service.findAll(paginationDto);
+
+			expect(result.totalPages).toBe(2);
+		});
+
+		it('should calculate totalPages correctly with remainder', async () => {
+			const paginationDto = {
+				page: 1,
+				limit: 10,
+			};
+
+			mockUserRepository.findAndCount.mockResolvedValue([[mockUser], 27]);
+
+			const result = await service.findAll(paginationDto);
+
+			expect(result.totalPages).toBe(3);
+		});
+
+		it('should order users by id in ascending order', async () => {
+			const paginationDto = {
+				page: 1,
+				limit: 10,
+			};
+
+			mockUserRepository.findAndCount.mockResolvedValue([[mockUser, mockUser2], 2]);
+
+			await service.findAll(paginationDto);
+
+			expect(mockUserRepository.findAndCount).toHaveBeenCalledWith(
+				expect.objectContaining({
+					order: { id: 'ASC' },
+				}),
+			);
 		});
 
 		it('should return users with their roles', async () => {
+			const paginationDto = {
+				page: 1,
+				limit: 10,
+			};
+
 			const usersWithRoles: User[] = [
 				{
 					...mockUser,
@@ -579,12 +728,51 @@ describe('UsersService', () => {
 				},
 			];
 
-			mockUserRepository.find.mockResolvedValue(usersWithRoles);
+			mockUserRepository.findAndCount.mockResolvedValue([usersWithRoles, 2]);
 
-			const result = await service.findAll();
+			const result = await service.findAll(paginationDto);
 
-			expect(result[0].role).toBeDefined();
-			expect(result[1].role).toBeDefined();
+			expect(result.data[0].role).toBeDefined();
+			expect(result.data[1].role).toBeDefined();
+		});
+
+		it('should handle large page numbers correctly', async () => {
+			const paginationDto = {
+				page: 100,
+				limit: 10,
+			};
+
+			mockUserRepository.findAndCount.mockResolvedValue([[], 50]);
+
+			const result = await service.findAll(paginationDto);
+
+			expect(result.hasNextPage).toBe(false);
+			expect(result.hasPrevPage).toBe(true);
+			expect(mockUserRepository.findAndCount).toHaveBeenCalledWith({
+				skip: 990,
+				take: 10,
+				order: { id: 'ASC' },
+			});
+		});
+
+		it('should handle single item per page', async () => {
+			const paginationDto = {
+				page: 2,
+				limit: 1,
+			};
+
+			mockUserRepository.findAndCount.mockResolvedValue([[mockUser2], 3]);
+
+			const result = await service.findAll(paginationDto);
+
+			expect(result.totalPages).toBe(3);
+			expect(result.hasNextPage).toBe(true);
+			expect(result.hasPrevPage).toBe(true);
+			expect(mockUserRepository.findAndCount).toHaveBeenCalledWith({
+				skip: 1,
+				take: 1,
+				order: { id: 'ASC' },
+			});
 		});
 	});
 
@@ -632,7 +820,6 @@ describe('UsersService', () => {
 
 			expect(resultById).toEqual(resultByEmail);
 		});
-
 		it('should handle create, set role, and update flow', async () => {
 			const createDto: CreateUserDto = {
 				email: 'flow@example.com',
@@ -664,7 +851,7 @@ describe('UsersService', () => {
 			const created = await service.create(createDto);
 			expect(created.email).toBe('flow@example.com');
 
-			mockUserRepository.findOneBy.mockResolvedValue(newUser);
+			mockUserRepository.findOne.mockResolvedValue(newUser);
 			mockRolesService.findOne.mockResolvedValue(adminRole);
 			mockUserRepository.save.mockResolvedValueOnce({
 				...newUser,
@@ -678,14 +865,17 @@ describe('UsersService', () => {
 				firstName: 'FlowUpdated',
 			};
 
-			mockUserRepository.update.mockResolvedValue({ affected: 1 });
-			mockUserRepository.findOneBy.mockResolvedValue({
+			const updatedUser: User = {
 				...newUser,
 				firstName: 'FlowUpdated',
-			});
+			};
+
+			mockUserRepository.update.mockResolvedValue({ affected: 1 });
+			mockUserRepository.findOne.mockResolvedValue(updatedUser);
 
 			await service.update(created.id, updateDto);
 			expect(mockUserRepository.update).toHaveBeenCalled();
 		});
+		
 	});
 });

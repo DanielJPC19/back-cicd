@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
+import { PaginationDto } from '../../../common/dto';
 import { Repository } from 'typeorm';
 import { UserConflict, UserNotFoundException } from '../../../common/exceptions';
 import { CreateUserDto } from '../dto/create-user.dto';
@@ -113,11 +114,32 @@ export class UsersService {
 
 
 
-	async findAll():Promise<User[]>{
+	async findAll(paginationDto:PaginationDto){
 
-    	return this.userRepository.find()
+		const {page, limit} = paginationDto
+		const skip = (page - 1) * limit
+
+		const [data, total] = await this.userRepository.findAndCount({
+			skip,
+			take: limit,
+			order: {id: 'ASC'}
+		})
+
+		return {
+
+			data, total, page, limit,
+			totalPages: Math.ceil(total/limit),
+			hasNextPage: page * limit < total,
+			hasPrevPage: page> 1,
+
+
+		}
+
 
 	}
+
+	
+
 
 
 

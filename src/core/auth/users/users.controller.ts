@@ -1,6 +1,7 @@
-import { Body, Controller, Delete, Get, HttpCode, Param, ParseIntPipe, Patch, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, Param, ParseIntPipe, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { PaginationDto } from '../../../common/dto';
 import { Permissions } from '../decorators/permissions.decorator';
 import { CreateUserDto } from '../dto/create-user.dto';
 import { SetUserRoleDto } from '../dto/update-user-role.dto';
@@ -40,9 +41,9 @@ export class UsersController {
 	@ApiResponse({ status: 401, description: 'No autenticado — JWT inválido o no provisto.' })
 	@ApiResponse({ status: 403, description: 'Permisos insuficientes' })
     @Permissions('user_read')
-	async findAll() {
-    	const result = await this.userService.findAll();
-    	return result;
+	async findAll(@Query() paginationDto: PaginationDto) {
+		const result = await this.userService.findAll(paginationDto);
+		return result;
 	}
 
 	@ApiOperation({ summary: 'Obtener un usuario por ID' })
