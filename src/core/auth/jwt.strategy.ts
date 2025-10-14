@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { PassportStrategy } from "@nestjs/passport";
 import { ExtractJwt, Strategy } from "passport-jwt";
-import { UserNotFoundException } from "src/common/exceptions";
+import { UserNotFoundException } from "../../common/exceptions";
 import { UsersService } from "./users/users.service";
 
 interface JwtPayload {
