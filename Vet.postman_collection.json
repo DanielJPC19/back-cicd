@@ -1,11 +1,11 @@
 {
 	"info": {
-		"_postman_id": "2f432159-454d-45ca-8d57-0b7b5a0f8cf3",
+		"_postman_id": "f0c607b4-9142-471d-9596-85e9439c43fc",
 		"name": "Vet - Role-Based Access Control System",
 		"description": "**ROLE-BASED ACCESS CONTROL GUIDE**\n\n**ADMIN (admin@mail.com / password123)**\n- Auth folder: Users, Roles, Permissions\n- Catalogs: Species & Diagnostic Types (Full CRUD)\n- NO Clinic operations (Medical Records/Diagnostics)\n\n**VETERINARIAN (veterinario@mail.com / vetpass123)**\n- Clinic folder: Medical Records & Diagnostics (Full CRUD)\n- Catalogs: Species & Diagnostic Types (Read only)\n- NO Auth operations (Users/Roles/Permissions)\n\n**OWNER (carlos.perez@mail.com / owner123)**\n- Owner Operations: Read-only access to own pets\n- NO Create/Update/Delete operations anywhere\n\n**SECURITY**: Each role gets 403 Forbidden for unauthorized endpoints!",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "47238530",
-		"_collection_link": "https://gabrielernestoeb-5480584.postman.co/workspace/Gabriel-Escobar's-Workspace~29ec8656-9b7c-432d-84de-c2a56980a1a8/collection/47238530-2f432159-454d-45ca-8d57-0b7b5a0f8cf3?action=share&source=collection_link&creator=47238530"
+		"_collection_link": "https://gabrielernestoeb-5480584.postman.co/workspace/Gabriel-Escobar's-Workspace~29ec8656-9b7c-432d-84de-c2a56980a1a8/collection/47238530-f0c607b4-9142-471d-9596-85e9439c43fc?action=share&source=collection_link&creator=47238530"
 	},
 	"item": [
 		{
@@ -177,7 +177,6 @@
 			"item": [
 				{
 					"name": "Create Permission",
-
 					"request": {
 						"method": "POST",
 						"header": [
@@ -255,10 +254,21 @@
 					"response": []
 				},
 				{
+					"name": "Pagination permissions",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{permissions}}",
+							"host": [
+								"{{permissions}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Create Rol",
-					"event": [
-
-					],
 					"request": {
 						"method": "POST",
 						"header": [
@@ -367,7 +377,6 @@
 				{
 					"name": "Create User",
 					"event": [
-
 						{
 							"listen": "prerequest",
 							"script": {
@@ -526,6 +535,20 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "Pagination users",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{users}}",
+							"host": [
+								"{{users}}"
+							]
+						}
+					},
+					"response": []
 				}
 			],
 			"auth": {
@@ -583,11 +606,11 @@
 								"{{species}}"
 							]
 						}
-					}
+					},
+					"response": []
 				},
 				{
 					"name": "Create Species",
-
 					"request": {
 						"method": "POST",
 						"header": [
@@ -612,7 +635,8 @@
 								"{{species}}"
 							]
 						}
-					}
+					},
+					"response": []
 				},
 				{
 					"name": "Get Species by ID",
@@ -631,7 +655,8 @@
 								"{{species}}1"
 							]
 						}
-					}
+					},
+					"response": []
 				},
 				{
 					"name": "Update Species",
@@ -659,7 +684,8 @@
 								"{{species}}1"
 							]
 						}
-					}
+					},
+					"response": []
 				},
 				{
 					"name": "Delete Species",
@@ -678,7 +704,8 @@
 								"{{species}}1"
 							]
 						}
-					}
+					},
+					"response": []
 				}
 			]
 		},
@@ -702,11 +729,11 @@
 								"{{diagnostic_types}}"
 							]
 						}
-					}
+					},
+					"response": []
 				},
 				{
 					"name": "Create Diagnostic Type",
-
 					"request": {
 						"method": "POST",
 						"header": [
@@ -731,7 +758,8 @@
 								"{{diagnostic_types}}"
 							]
 						}
-					}
+					},
+					"response": []
 				},
 				{
 					"name": "Get Diagnostic Type by ID",
@@ -750,9 +778,9 @@
 								"{{diagnostic_types}}1"
 							]
 						}
-					}
+					},
+					"response": []
 				},
-
 				{
 					"name": "Update Diagnostic Type",
 					"request": {
@@ -779,7 +807,8 @@
 								"{{diagnostic_types}}1"
 							]
 						}
-					}
+					},
+					"response": []
 				},
 				{
 					"name": "Delete Diagnostic Type",
@@ -798,7 +827,8 @@
 								"{{diagnostic_types}}1"
 							]
 						}
-					}
+					},
+					"response": []
 				}
 			]
 		},
@@ -822,7 +852,8 @@
 								"{{pets}}"
 							]
 						}
-					}
+					},
+					"response": []
 				},
 				{
 					"name": "Create Pet",
@@ -850,7 +881,8 @@
 								"{{pets}}"
 							]
 						}
-					}
+					},
+					"response": []
 				},
 				{
 					"name": "Get Pet by ID",
@@ -869,7 +901,8 @@
 								"{{pets}}1"
 							]
 						}
-					}
+					},
+					"response": []
 				},
 				{
 					"name": "Update Pet",
@@ -897,7 +930,8 @@
 								"{{pets}}1"
 							]
 						}
-					}
+					},
+					"response": []
 				},
 				{
 					"name": "Delete Pet",
@@ -916,7 +950,8 @@
 								"{{pets}}1"
 							]
 						}
-					}
+					},
+					"response": []
 				},
 				{
 					"name": "Get Pets by Species",
@@ -938,7 +973,8 @@
 								"1"
 							]
 						}
-					}
+					},
+					"response": []
 				},
 				{
 					"name": "Get Pets by Owner",
@@ -960,7 +996,8 @@
 								"3"
 							]
 						}
-					}
+					},
+					"response": []
 				}
 			]
 		},
@@ -984,7 +1021,8 @@
 								"{{medical_records}}"
 							]
 						}
-					}
+					},
+					"response": []
 				},
 				{
 					"name": "Create Medical Record",
@@ -1012,7 +1050,8 @@
 								"{{medical_records}}"
 							]
 						}
-					}
+					},
+					"response": []
 				},
 				{
 					"name": "Get Medical Record by ID",
@@ -1031,7 +1070,8 @@
 								"{{medical_records}}1"
 							]
 						}
-					}
+					},
+					"response": []
 				},
 				{
 					"name": "Update Medical Record",
@@ -1059,7 +1099,8 @@
 								"{{medical_records}}1"
 							]
 						}
-					}
+					},
+					"response": []
 				},
 				{
 					"name": "Delete Medical Record",
@@ -1078,7 +1119,8 @@
 								"{{medical_records}}1"
 							]
 						}
-					}
+					},
+					"response": []
 				},
 				{
 					"name": "Get Medical Records by Pet",
@@ -1100,7 +1142,8 @@
 								"1"
 							]
 						}
-					}
+					},
+					"response": []
 				},
 				{
 					"name": "Get Medical Records by Veterinarian",
@@ -1122,7 +1165,8 @@
 								"1"
 							]
 						}
-					}
+					},
+					"response": []
 				}
 			]
 		},
@@ -1146,7 +1190,8 @@
 								"{{diagnostics}}"
 							]
 						}
-					}
+					},
+					"response": []
 				},
 				{
 					"name": "Create Diagnostic",
@@ -1174,7 +1219,8 @@
 								"{{diagnostics}}"
 							]
 						}
-					}
+					},
+					"response": []
 				},
 				{
 					"name": "Get Diagnostic by ID",
@@ -1193,7 +1239,8 @@
 								"{{diagnostics}}1"
 							]
 						}
-					}
+					},
+					"response": []
 				},
 				{
 					"name": "Update Diagnostic",
@@ -1221,7 +1268,8 @@
 								"{{diagnostics}}1"
 							]
 						}
-					}
+					},
+					"response": []
 				},
 				{
 					"name": "Delete Diagnostic",
@@ -1240,7 +1288,8 @@
 								"{{diagnostics}}1"
 							]
 						}
-					}
+					},
+					"response": []
 				},
 				{
 					"name": "Get Diagnostics by Medical Record",
@@ -1262,7 +1311,8 @@
 								"1"
 							]
 						}
-					}
+					},
+					"response": []
 				},
 				{
 					"name": "Get Diagnostics by Veterinarian",
@@ -1284,7 +1334,8 @@
 								"1"
 							]
 						}
-					}
+					},
+					"response": []
 				},
 				{
 					"name": "Get Diagnostics by Pet",
@@ -1306,7 +1357,8 @@
 								"1"
 							]
 						}
-					}
+					},
+					"response": []
 				},
 				{
 					"name": "Get Diagnostics by Severity (Query)",
@@ -1331,7 +1383,8 @@
 								}
 							]
 						}
-					}
+					},
+					"response": []
 				},
 				{
 					"name": "Get Diagnostics by Severity (Path)",
@@ -1353,7 +1406,8 @@
 								"critical"
 							]
 						}
-					}
+					},
+					"response": []
 				}
 			]
 		}
@@ -1463,7 +1517,6 @@
 			"key": "jwt_user",
 			"value": ""
 		},
-
 		{
 			"key": "password_user",
 			"value": "userpass456"

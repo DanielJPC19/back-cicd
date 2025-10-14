@@ -1,13 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { UserConflict, UserNotFoundException } from '../../../common/exceptions';
+import { CreateUserDto } from '../dto/create-user.dto';
+import { SetUserRoleDto } from '../dto/update-user-role.dto';
+import { UpdateUserDto } from '../dto/update-user.dto';
+import { Permission } from '../entities/permission.entity';
+import { Role } from '../entities/role.entity';
+import { User } from '../entities/user.entity';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
-import { CreateUserDto } from '../dto/create-user.dto';
-import { UpdateUserDto } from '../dto/update-user.dto';
-import { SetUserRoleDto } from '../dto/update-user-role.dto';
-import { User } from '../entities/user.entity';
-import { Role } from '../entities/role.entity';
-import { Permission } from '../entities/permission.entity';
-import { UserConflict, UserNotFoundException } from '../../../common/exceptions';
 
 describe('UsersController', () => {
 	let controller: UsersController;
@@ -228,7 +228,7 @@ describe('UsersController', () => {
 		});
 	});
 
-	describe('findAll', () => {
+	/* 	describe('findAll', () => {
 		it('should return all users', async () => {
 			const users: User[] = [mockUser, mockUser2];
 			mockUsersService.findAll.mockResolvedValue(users);
@@ -280,7 +280,235 @@ describe('UsersController', () => {
 			expect(mockUsersService.findAll).toHaveBeenCalledTimes(2);
 		});
 	});
+ */
 
+	describe('findAll', () => {
+		it('should return paginated users with metadata', async () => {
+			const paginationDto = {
+				page: 1,
+				limit: 10,
+			};
+
+			const paginatedResult = {
+				data: [mockUser, mockUser2],
+				total: 2,
+				page: 1,
+				limit: 10,
+				totalPages: 1,
+				hasNextPage: false,
+				hasPrevPage: false,
+			};
+
+			mockUsersService.findAll.mockResolvedValue(paginatedResult);
+
+			const result = await controller.findAll(paginationDto);
+
+			expect(mockUsersService.findAll).toHaveBeenCalledWith(paginationDto);
+			expect(mockUsersService.findAll).toHaveBeenCalledTimes(1);
+			expect(result).toEqual(paginatedResult);
+			expect(result.data.length).toBe(2);
+			expect(result.total).toBe(2);
+			expect(result.totalPages).toBe(1);
+			expect(result.hasNextPage).toBe(false);
+			expect(result.hasPrevPage).toBe(false);
+		});
+
+		it('should return empty data array when no users exist', async () => {
+			const paginationDto = {
+				page: 1,
+				limit: 10,
+			};
+
+			const paginatedResult = {
+				data: [],
+				total: 0,
+				page: 1,
+				limit: 10,
+				totalPages: 0,
+				hasNextPage: false,
+				hasPrevPage: false,
+			};
+
+			mockUsersService.findAll.mockResolvedValue(paginatedResult);
+
+			const result = await controller.findAll(paginationDto);
+
+			expect(result.data).toEqual([]);
+			expect(result.total).toBe(0);
+			expect(result.totalPages).toBe(0);
+		});
+
+		it('should return users with their roles', async () => {
+			const paginationDto = {
+				page: 1,
+				limit: 10,
+			};
+
+			const paginatedResult = {
+				data: [
+					{
+						...mockUser,
+						role: mockRole,
+					},
+					{
+						...mockUser2,
+						role: mockRole,
+					},
+				],
+				total: 2,
+				page: 1,
+				limit: 10,
+				totalPages: 1,
+				hasNextPage: false,
+				hasPrevPage: false,
+			};
+
+			mockUsersService.findAll.mockResolvedValue(paginatedResult);
+
+			const result = await controller.findAll(paginationDto);
+
+			expect(result.data[0].role).toBeDefined();
+			expect(result.data[1].role).toBeDefined();
+			expect(result.data[0].role.roleName).toBe('user');
+		});
+
+		it('should handle pagination for page 2', async () => {
+			const paginationDto = {
+				page: 2,
+				limit: 10,
+			};
+
+			const paginatedResult = {
+				data: [mockUser, mockUser2],
+				total: 25,
+				page: 2,
+				limit: 10,
+				totalPages: 3,
+				hasNextPage: true,
+				hasPrevPage: true,
+			};
+
+			mockUsersService.findAll.mockResolvedValue(paginatedResult);
+
+			const result = await controller.findAll(paginationDto);
+
+			expect(mockUsersService.findAll).toHaveBeenCalledWith(paginationDto);
+			expect(result.page).toBe(2);
+			expect(result.totalPages).toBe(3);
+			expect(result.hasNextPage).toBe(true);
+			expect(result.hasPrevPage).toBe(true);
+		});
+
+		it('should pass exact pagination parameters to service', async () => {
+			const paginationDto = {
+				page: 3,
+				limit: 5,
+			};
+
+			const paginatedResult = {
+				data: [mockUser],
+				total: 15,
+				page: 3,
+				limit: 5,
+				totalPages: 3,
+				hasNextPage: false,
+				hasPrevPage: true,
+			};
+
+			mockUsersService.findAll.mockResolvedValue(paginatedResult);
+
+			await controller.findAll(paginationDto);
+
+			expect(mockUsersService.findAll).toHaveBeenCalledWith({
+				page: 3,
+				limit: 5,
+			});
+		});
+
+		it('should return first page without previous page', async () => {
+			const paginationDto = {
+				page: 1,
+				limit: 10,
+			};
+
+			const paginatedResult = {
+				data: [mockUser, mockUser2],
+				total: 20,
+				page: 1,
+				limit: 10,
+				totalPages: 2,
+				hasNextPage: true,
+				hasPrevPage: false,
+			};
+
+			mockUsersService.findAll.mockResolvedValue(paginatedResult);
+
+			const result = await controller.findAll(paginationDto);
+
+			expect(result.hasPrevPage).toBe(false);
+			expect(result.hasNextPage).toBe(true);
+			expect(result.page).toBe(1);
+		});
+
+		it('should return last page without next page', async () => {
+			const paginationDto = {
+				page: 2,
+				limit: 10,
+			};
+
+			const paginatedResult = {
+				data: [mockUser],
+				total: 15,
+				page: 2,
+				limit: 10,
+				totalPages: 2,
+				hasNextPage: false,
+				hasPrevPage: true,
+			};
+
+			mockUsersService.findAll.mockResolvedValue(paginatedResult);
+
+			const result = await controller.findAll(paginationDto);
+
+			expect(result.hasNextPage).toBe(false);
+			expect(result.hasPrevPage).toBe(true);
+		});
+
+		it('should handle multiple pagination requests', async () => {
+			const paginationDto1 = { page: 1, limit: 10 };
+			const paginationDto2 = { page: 2, limit: 10 };
+
+			const result1 = {
+				data: [mockUser],
+				total: 20,
+				page: 1,
+				limit: 10,
+				totalPages: 2,
+				hasNextPage: true,
+				hasPrevPage: false,
+			};
+
+			const result2 = {
+				data: [mockUser2],
+				total: 20,
+				page: 2,
+				limit: 10,
+				totalPages: 2,
+				hasNextPage: false,
+				hasPrevPage: true,
+			};
+
+			mockUsersService.findAll.mockResolvedValueOnce(result1);
+			mockUsersService.findAll.mockResolvedValueOnce(result2);
+
+			const response1 = await controller.findAll(paginationDto1);
+			const response2 = await controller.findAll(paginationDto2);
+
+			expect(response1.page).toBe(1);
+			expect(response2.page).toBe(2);
+			expect(mockUsersService.findAll).toHaveBeenCalledTimes(2);
+		});
+	});
 	describe('findOne', () => {
 		it('should find a user by id successfully', async () => {
 			mockUsersService.findOne.mockResolvedValue(mockUser);
@@ -844,15 +1072,17 @@ describe('UsersController', () => {
 				'Database connection failed',
 			);
 		});
-
 		it('should propagate error from findAll', async () => {
 			const error = new Error('Database query error');
+			const paginationDto = { page: 1, limit: 10 };
+
 			mockUsersService.findAll.mockRejectedValue(error);
 
-			await expect(controller.findAll()).rejects.toThrow(
-				'Database query error',
-			);
+			await expect(controller.findAll(paginationDto)).rejects.toThrow('Database query error');
+			expect(mockUsersService.findAll).toHaveBeenCalledWith(paginationDto);
 		});
+
+
 
 		it('should propagate error from findOne', async () => {
 			const error = new Error('Database connection error');

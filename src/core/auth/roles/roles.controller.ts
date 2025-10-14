@@ -1,7 +1,8 @@
 
-import { Body, Controller, Delete, Get, HttpCode, Param, ParseIntPipe, Patch, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, Param, ParseIntPipe, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { PaginationDto } from '../../../common/dto';
 import { Permissions } from '../decorators/permissions.decorator';
 import { AddPermissionDto } from '../dto/add-permissionToRole.dto';
 import { CreateRoleDto } from '../dto/create-role.dto';
@@ -31,11 +32,6 @@ export class RolesController {
 		const result = await this.roleService.create(createRoleDto);
 		return result;
 	}
-	/* 	@Get()
-	async findAll() {
-		const result = await this.roleService.findAll();
-		return result;
-	} */
 	@ApiOperation({ summary: 'Obtener un rol por ID' })
 	@ApiResponse({ status: 200, description: 'Rol encontrado correctamente.' })
 	@ApiResponse({ status: 401, description: 'No autenticado — JWT inválido o no provisto.' })
@@ -90,4 +86,17 @@ export class RolesController {
 		return this.roleService.addPermission(addPermissionDto);
 
 	}
+
+
+	@Get()
+	@ApiOperation({ summary: 'Listar todos los Roles' })
+	@ApiResponse({ status: 200, description: 'Lista de Roles obtenida correctamente.' })
+	@ApiResponse({ status: 401, description: 'No autenticado — JWT inválido o no provisto.' })
+	@ApiResponse({ status: 403, description: 'Permisos insuficientes' })
+    @Permissions('role_read')
+	async findAll(@Query() paginationDto: PaginationDto) {
+		const result = await this.roleService.findAll(paginationDto);
+		return result;
+	}
+
 }

@@ -7,6 +7,8 @@ import { CreateRoleDto } from '../dto/create-role.dto';
 import { UpdateRoleDto } from '../dto/update-role.dto';
 import { Role } from '../entities/role.entity';
 import { PermissionsService } from '../permissions/permissions.service';
+import {PaginationDto}  from '../../../common/dto';
+
 @Injectable()
 export class RolesService {
 
@@ -107,10 +109,31 @@ export class RolesService {
 	}
 
 
-	async findAll():Promise<void>{
+
+
+	async findAll(paginationDto:PaginationDto){
+
+		const {page, limit} = paginationDto
+		const skip = (page - 1) * limit
+
+		const [data, total] = await this.roleRepository.findAndCount({
+			skip,
+			take: limit,
+			order: {id: 'ASC'}
+		})
+
+		return {
+
+			data, total, page, limit,
+			totalPages: Math.ceil(total/limit),
+			hasNextPage: page * limit < total,
+			hasPrevPage: page> 1,
+
+
+		}
+
 
 	}
-
 
 
 }

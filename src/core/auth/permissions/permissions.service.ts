@@ -1,6 +1,7 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PermissionConflict, PermissionNotFoundException } from '../../../common/exceptions';
+import {PaginationDto}  from '../../../common/dto';
 import { Repository } from 'typeorm';
 import { CreatePermissionDto } from '../dto/create-permission.dto';
 import { UpdatePermissionDto } from '../dto/update-permission.dto';
@@ -82,11 +83,29 @@ export class PermissionsService {
 	}
 
 
-	/* 	async findAll(): Promise<Permission> {
+	async findAll(paginationDto:PaginationDto){
+
+		const {page, limit} = paginationDto
+		const skip = (page - 1) * limit
+
+		const [data, total] = await this.permissionRepository.findAndCount({
+			skip,
+			take: limit,
+			order: {id: 'ASC'}
+		})
+
+		return {
+
+			data, total, page, limit,
+			totalPages: Math.ceil(total/limit),
+			hasNextPage: page * limit < total,
+			hasPrevPage: page> 1,
 
 
-	} */
+		}
 
+
+	}
 
 
 

@@ -84,6 +84,8 @@
     ],
     "coveragePathIgnorePatterns": [
       "\\.module\\.ts$",
+      "\\.dto\\.ts$",
+      "\\.entity\\.ts$",
       "main.ts",
       "seed.ts"
     ],
