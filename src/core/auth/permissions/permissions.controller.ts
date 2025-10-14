@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Permissions } from '../decorators/permissions.decorator';
@@ -7,6 +7,7 @@ import { UpdatePermissionDto } from '../dto/update-permission.dto';
 import { PermissionsGuard } from '../guards/permissions.guard';
 import { PermissionsService } from './permissions.service';
 
+import { PaginationDto } from '../../../common/dto';
 @ApiBearerAuth('jwt-auth')
 @ApiTags('Permissions')
 @UseGuards(AuthGuard('jwt'), PermissionsGuard)
@@ -71,6 +72,19 @@ export class PermissionsController {
 	@Delete(':id')
 	async removeById(@Param('id', ParseIntPipe) id: number){
 		await this.permissionService.removeById(id);
+	}
+
+
+
+	@Get()
+	@ApiOperation({ summary: 'Listar todos los Permisos' })
+	@ApiResponse({ status: 200, description: 'Lista de Permisos obtenida correctamente.' })
+	@ApiResponse({ status: 401, description: 'No autenticado — JWT inválido o no provisto.' })
+	@ApiResponse({ status: 403, description: 'Permisos insuficientes' })
+    @Permissions('role_read')
+	async findAll(@Query() paginationDto: PaginationDto) {
+		const result = await this.permissionService.findAll(paginationDto);
+		return result;
 	}
 
 }
