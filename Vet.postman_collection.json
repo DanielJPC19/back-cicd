@@ -169,26 +169,6 @@
 						}
 					},
 					"response": []
-				},
-				{
-					"name": "Get Species (Read Only)",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{jwt_owner}}",
-								"type": "text"
-							}
-						],
-						"url": {
-							"raw": "{{species}}",
-							"host": [
-								"{{species}}"
-							]
-						}
-					},
-					"response": []
 				}
 			]
 		},
@@ -584,7 +564,7 @@
 			]
 		},
 		{
-			"name": "Catalogs - Species (ADMIN: Full CRUD, VETERINARIAN: Read Only)",
+			"name": "Catalogs - Species (ADMIN: Full CRUD)",
 			"item": [
 				{
 					"name": "Get All Species",
@@ -593,7 +573,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer {{jwt_veterinario}}",
+								"value": "Bearer {{jwt_admin}}",
 								"type": "text"
 							}
 						],
@@ -641,7 +621,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer {{jwt_veterinario}}",
+								"value": "Bearer {{jwt_admin}}",
 								"type": "text"
 							}
 						],
@@ -703,7 +683,7 @@
 			]
 		},
 		{
-			"name": "Catalogs - Diagnostic Types (ADMIN: Full CRUD, VETERINARIAN: Read Only)",
+			"name": "Catalogs - Diagnostic Types (ADMIN: Full CRUD)",
 			"item": [
 				{
 					"name": "Get All Diagnostic Types",
@@ -712,7 +692,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer {{jwt_veterinario}}",
+								"value": "Bearer {{jwt_admin}}",
 								"type": "text"
 							}
 						],
@@ -760,7 +740,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer {{jwt_veterinario}}",
+								"value": "Bearer {{jwt_admin}}",
 								"type": "text"
 							}
 						],
@@ -823,7 +803,7 @@
 			]
 		},
 		{
-			"name": "Clinic - Pets (ADMIN: CRUD, VETERINARIAN: Read/Update, OWNER: Read Own)",
+			"name": "Clinic - Pets (ADMIN: CRUD)",
 			"item": [
 				{
 					"name": "Get All Pets",
@@ -832,7 +812,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer {{jwt_veterinario}}",
+								"value": "Bearer {{jwt_admin}}",
 								"type": "text"
 							}
 						],
@@ -898,7 +878,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer {{jwt_veterinario}}",
+								"value": "Bearer {{jwt_admin}}",
 								"type": "text"
 							}
 						],
@@ -945,7 +925,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer {{jwt_veterinario}}",
+								"value": "Bearer {{jwt_admin}}",
 								"type": "text"
 							}
 						],
@@ -967,7 +947,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer {{jwt_veterinario}}",
+								"value": "Bearer {{jwt_admin}}",
 								"type": "text"
 							}
 						],
