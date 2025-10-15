@@ -1,23 +1,44 @@
+import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { error } from 'console';
+import { AppModule } from './app.module';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
 
-  // Basic Swagger configuration
-  const config = new DocumentBuilder()
-    .setTitle('Veterinary API')
-    .setDescription('API documentation for the veterinary clinic')
-    .setVersion('1.0')
-    .build();
+	const app = await NestFactory.create(AppModule);
 
-  // Create Swagger document
-  const document = SwaggerModule.createDocument(app, config);
+	// Basic Swagger configuration
+	const config = new DocumentBuilder()
+		.setTitle('Veterinary API')
+		.setDescription('API documentation for the veterinary clinic')
+		.setVersion('1.0')
+		.addBearerAuth(
+			{
+				type: 'http',
+				scheme: 'bearer',
+				bearerFormat: 'JWT',
+				name: 'Authorization',
+				in: 'header',
+			},
+			'jwt-auth', 
+		)
+		.build();
 
-  // Serve Swagger UI at /api
-  SwaggerModule.setup('api', app, document);
+	// Create Swagger document
+	const document = SwaggerModule.createDocument(app, config);
 
-  await app.listen(process.env.PORT ?? 3000);
+	// Serve Swagger UI at /api
+	SwaggerModule.setup('api', app, document);
+	
+	app.useGlobalPipes(
+		new ValidationPipe({
+			whitelist: true, 
+			transform: true,
+		}),
+	);
+
+
+	await app.listen(process.env.PORT ?? 3500);
 }
-bootstrap();
+bootstrap().catch(error);
