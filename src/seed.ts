@@ -188,6 +188,7 @@ async function seed() {
 	
 	const pets = [
 		{
+			id: 1,
 			name: 'Firulais',
 			age: 3,
 			gender: PetGender.MALE,
@@ -198,6 +199,7 @@ async function seed() {
 			owner: ownerCarlos,
 		},
 		{
+			id: 2,
 			name: 'Mishi',
 			age: 2,
 			gender: PetGender.FEMALE,
@@ -208,6 +210,7 @@ async function seed() {
 			owner: ownerMaria,
 		},
 		{
+			id: 3,
 			name: 'Piolín',
 			age: 1,
 			gender: PetGender.MALE,
