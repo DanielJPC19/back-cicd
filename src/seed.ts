@@ -88,34 +88,36 @@ async function seed() {
 		 'READ_SPECIES', 'READ_DIAGNOSTIC_TYPE'].includes(p.permissionName)
 	);
 
-	// USUARIO/PROPIETARIO: Solo lectura
+	// USUARIO/PROPIETARIO: SOLO LECTURA - únicamente sus mascotas y registros médicos
 	userRole.permissions = allPermissions.filter((p) =>
-		['pet_read', 'medical_record_read', 'diagnostic_read', 'READ_SPECIES', 'READ_DIAGNOSTIC_TYPE'].includes(p.permissionName)
+		['pet_read', 'medical_record_read'].includes(p.permissionName)
 	);
 
 	await AppDataSource.manager.save([adminRole, veterinarianRole, userRole]);
 
 	console.log('Creando especies...');
-	const species = [
-		{ name: 'Perro', description: 'Canis lupus familiaris' },
-		{ name: 'Gato', description: 'Felis catus' },
-		{ name: 'Ave', description: 'Aves domésticas' },
-		{ name: 'Conejo', description: 'Oryctolagus cuniculus' },
-		{ name: 'Hamster', description: 'Cricetinae' },
-	].map((data) => AppDataSource.manager.create(Species, data));
+	const speciesData = [
+		{ id: 1, name: 'Perro', description: 'Canis lupus familiaris' },
+		{ id: 2, name: 'Gato', description: 'Felis catus' },
+		{ id: 3, name: 'Ave', description: 'Aves domésticas' },
+		{ id: 4, name: 'Conejo', description: 'Oryctolagus cuniculus' },
+		{ id: 5, name: 'Hamster', description: 'Cricetinae' },
+	];
+	const species = speciesData.map((data) => AppDataSource.manager.create(Species, data));
 
 	await AppDataSource.manager.save(species);
 
 	console.log('Creando tipos de diagnóstico...');
-	const diagnosticTypes = [
-		{ name: 'Consulta General' },
-		{ name: 'Vacunación' },
-		{ name: 'Cirugía' },
-		{ name: 'Emergencia' },
-		{ name: 'Control Rutinario' },
-		{ name: 'Dental' },
-		{ name: 'Dermatológica' },
-	].map((data) => AppDataSource.manager.create(DiagnosticType, data));
+	const diagnosticTypesData = [
+		{ id: 1, name: 'Consulta General' },
+		{ id: 2, name: 'Vacunación' },
+		{ id: 3, name: 'Cirugía' },
+		{ id: 4, name: 'Emergencia' },
+		{ id: 5, name: 'Control Rutinario' },
+		{ id: 6, name: 'Dental' },
+		{ id: 7, name: 'Dermatológica' },
+	];
+	const diagnosticTypes = diagnosticTypesData.map((data) => AppDataSource.manager.create(DiagnosticType, data));
 
 	await AppDataSource.manager.save(diagnosticTypes);
 
@@ -227,6 +229,7 @@ async function seed() {
 		const sizes = [PetSize.MEDIUM, PetSize.SMALL, PetSize.SMALL];
 		
 		const medicalRecord = AppDataSource.manager.create(MedicalRecord, {
+			id: i + 1, // Forzar IDs: 1, 2, 3
 			pet: pet,
 			veterinarian: veterinarianUser,
 			openingDate: new Date('2024-01-15'),
