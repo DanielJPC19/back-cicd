@@ -1,11 +1,11 @@
 {
 	"info": {
-		"_postman_id": "f0c607b4-9142-471d-9596-85e9439c43fc",
+		"_postman_id": "c0b5b306-0dc4-44a5-ad93-e95d9c3649e1",
 		"name": "Vet - Role-Based Access Control System",
 		"description": "**ROLE-BASED ACCESS CONTROL GUIDE**\n\n**ADMIN (admin@mail.com / password123)**\n- Auth folder: Users, Roles, Permissions\n- Catalogs: Species & Diagnostic Types (Full CRUD)\n- NO Clinic operations (Medical Records/Diagnostics)\n\n**VETERINARIAN (veterinario@mail.com / vetpass123)**\n- Clinic folder: Medical Records & Diagnostics (Full CRUD)\n- Catalogs: Species & Diagnostic Types (Read only)\n- NO Auth operations (Users/Roles/Permissions)\n\n**OWNER (carlos.perez@mail.com / owner123)**\n- Owner Operations: Read-only access to own pets\n- NO Create/Update/Delete operations anywhere\n\n**SECURITY**: Each role gets 403 Forbidden for unauthorized endpoints!",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "47238530",
-		"_collection_link": "https://gabrielernestoeb-5480584.postman.co/workspace/Gabriel-Escobar's-Workspace~29ec8656-9b7c-432d-84de-c2a56980a1a8/collection/47238530-f0c607b4-9142-471d-9596-85e9439c43fc?action=share&source=collection_link&creator=47238530"
+		"_collection_link": "https://gabrielernestoeb-5480584.postman.co/workspace/Gabriel-Escobar's-Workspace~29ec8656-9b7c-432d-84de-c2a56980a1a8/collection/47238530-c0b5b306-0dc4-44a5-ad93-e95d9c3649e1?action=share&source=collection_link&creator=47238530"
 	},
 	"item": [
 		{
@@ -180,6 +180,48 @@
 		{
 			"name": "Auth (ADMIN ONLY - admin@mail.com)",
 			"item": [
+				{
+					"name": "Create User",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"juan.perez@example.com\",\n  \"firstName\": \"Juan\",\n  \"lastName\": \"Pérez\",\n  \"password\": \"Secreta123\",\n  \"phoneNumber\": \"3001234567\",\n  \"address\": \"Calle Falsa 123, Bogotá\"\n\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{users}}",
+							"host": [
+								"{{users}}"
+							]
+						}
+					},
+					"response": []
+				},
 				{
 					"name": "Create Permission",
 					"request": {
@@ -374,55 +416,6 @@
 							"raw": "{{roles}}permission",
 							"host": [
 								"{{roles}}permission"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Create User",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"const body = JSON.parse(pm.request.body.raw);",
-									"pm.collectionVariables.set(\"password\", body.password);",
-									"pm.collectionVariables.set(\"email\", body.email );",
-									"",
-									"// DEBUG: Verificar qué token se está usando",
-									"console.log('DEBUG - Admin Token:', pm.collectionVariables.get('jwt_admin'));",
-									"console.log('DEBUG - Veterinario Token:', pm.collectionVariables.get('jwt_veterinario'));",
-									"console.log('DEBUG - Owner Token:', pm.collectionVariables.get('jwt_owner'));"
-								],
-								"type": "text/javascript",
-								"packages": {},
-								"requests": {}
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{jwt_admin}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"email\": \"juan.perez@example.com\",\n  \"firstName\": \"Juan\",\n  \"lastName\": \"Pérez\",\n  \"password\": \"Secreta123\",\n  \"phoneNumber\": \"3001234567\",\n  \"address\": \"Calle Falsa 123, Bogotá\"\n\n}\n",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{users}}",
-							"host": [
-								"{{users}}"
 							]
 						}
 					},
@@ -1525,11 +1518,9 @@
 			"value": "user@mail.com"
 		},
 		{
-			"key": "password",
 			"value": ""
 		},
 		{
-			"key": "email",
 			"value": ""
 		}
 	]
