@@ -1,6 +1,6 @@
 import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { Express } from 'express'; // ✅ añadimos el tipo
+import { Express } from 'express'; 
 import request, { Response } from 'supertest';
 import { AppModule } from '../src/app.module';
 
