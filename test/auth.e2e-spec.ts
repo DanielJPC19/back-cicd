@@ -1,0 +1,53 @@
+import { INestApplication } from '@nestjs/common';
+import { Test, TestingModule } from '@nestjs/testing';
+import { Express } from 'express'; // ✅ añadimos el tipo
+import request, { Response } from 'supertest';
+import { AppModule } from '../src/app.module';
+
+describe('AuthController (e2e)', () => {
+	let app: INestApplication;
+
+	beforeAll(async () => {
+		const moduleFixture: TestingModule = await Test.createTestingModule({
+			imports: [AppModule],
+		}).compile();
+
+		app = moduleFixture.createNestApplication();
+		await app.init();
+	});
+
+	afterAll(async () => {
+		await app.close();
+	});
+
+	it('/auth/login (POST) — credenciales válidas', async () => {
+		const server = app.getHttpServer() as Express;
+
+		const response: Response = await request(server)
+			.post('/auth/login')
+			.send({
+				email: 'admin@mail.com',
+				password: 'password123',
+			})
+			.expect(201);
+
+		const body = response.body as { access_token: string };
+
+		expect(body).toHaveProperty('access_token');
+		expect(typeof body.access_token).toBe('string');
+	});
+
+	it('/auth/login (POST) — credenciales incorrectas', async () => {
+		const server = app.getHttpServer() as Express; // ✅ tipado seguro
+
+		const response: Response = await request(server)
+			.post('/auth/login')
+			.send({
+				email: 'admin@mail.com',
+				password: 'wrongpassword',
+			})
+			.expect(401);
+
+		expect(response.body).toBeDefined();
+	});
+});
