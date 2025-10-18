@@ -8,14 +8,14 @@ import { DiagnosticsService } from './diagnostics.service';
 import { Diagnostic } from './entities/diagnostic.entity';
 
 @Module({
-  controllers: [DiagnosticsController],
-  providers: [DiagnosticsService],
-  imports: [
-    TypeOrmModule.forFeature([Diagnostic]),
-    MedicalRecordsModule,
-    DiagnosticTypesModule,
-    AuthModule,
-  ],
-  exports: [DiagnosticsService],
+	controllers: [DiagnosticsController],
+	providers: [DiagnosticsService],
+	imports: [
+		TypeOrmModule.forFeature([Diagnostic]),
+		MedicalRecordsModule,
+		DiagnosticTypesModule,
+		AuthModule,
+	],
+	exports: [DiagnosticsService],
 })
 export class DiagnosticsModule {}

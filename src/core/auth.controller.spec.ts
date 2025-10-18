@@ -5,7 +5,6 @@ import { UserLoginDto } from './auth/dto/login-user.dto';
 
 describe('AuthController', () => {
 	let controller: AuthController;
-	let authService: AuthService;
 
 	const mockAuthService = {
 		login: jest.fn(),
@@ -24,7 +23,6 @@ describe('AuthController', () => {
 		}).compile();
 
 		controller = module.get<AuthController>(AuthController);
-		authService = module.get<AuthService>(AuthService);
 	});
 
 	afterEach(() => {
@@ -50,7 +48,7 @@ describe('AuthController', () => {
 
 			const result = await controller.login(userLoginDto);
 
-			expect(authService.login).toHaveBeenCalledWith(userLoginDto);
+			expect(mockAuthService.login).toHaveBeenCalledWith(userLoginDto);
 			expect(result).toEqual(expectedResult);
 		});
 
@@ -68,7 +66,7 @@ describe('AuthController', () => {
 
 			const result = await controller.login(userLoginDto);
 
-			expect(authService.login).toHaveBeenCalledWith(userLoginDto);
+			expect(mockAuthService.login).toHaveBeenCalledWith(userLoginDto);
 			expect(result).toEqual(expectedResult);
 		});
 	});

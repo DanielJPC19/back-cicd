@@ -177,9 +177,9 @@ async function seed() {
 		},
 	];
 	const savedUsers = await AppDataSource.manager.save(User, users);
-	const adminUser = savedUsers[0];
+	// const adminUser = savedUsers[0];
 	const veterinarianUser = savedUsers[1];
-	const normalUser = savedUsers[2];
+	// const normalUser = savedUsers[2];
 	const ownerCarlos = savedUsers[3];
 	const ownerMaria = savedUsers[4];
 
