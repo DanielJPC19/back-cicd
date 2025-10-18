@@ -3,13 +3,13 @@ import { DiagnosticTypesModule } from './diagnostic-types/diagnostic-types.modul
 import { SpeciesModule } from './species/species.module';
 
 @Module({
-  imports: [
-    SpeciesModule,
-    DiagnosticTypesModule,
-  ],
-  exports: [
-    SpeciesModule,
-    DiagnosticTypesModule,
-  ],
+	imports: [
+		SpeciesModule,
+		DiagnosticTypesModule,
+	],
+	exports: [
+		SpeciesModule,
+		DiagnosticTypesModule,
+	],
 })
 export class CatalogsModule {}

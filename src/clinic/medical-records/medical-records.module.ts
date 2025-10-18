@@ -8,14 +8,14 @@ import { MedicalRecordsController } from './medical-records.controller';
 import { MedicalRecordsService } from './medical-records.service';
 
 @Module({
-  controllers: [MedicalRecordsController],
-  providers: [MedicalRecordsService],
-  imports: [
-    TypeOrmModule.forFeature([MedicalRecord]),
-    PetsModule,
-    DiagnosticTypesModule,
-    AuthModule,
-  ],
-  exports: [MedicalRecordsService],
+	controllers: [MedicalRecordsController],
+	providers: [MedicalRecordsService],
+	imports: [
+		TypeOrmModule.forFeature([MedicalRecord]),
+		PetsModule,
+		DiagnosticTypesModule,
+		AuthModule,
+	],
+	exports: [MedicalRecordsService],
 })
 export class MedicalRecordsModule {}

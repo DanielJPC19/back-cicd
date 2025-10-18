@@ -13,8 +13,6 @@ const mockedBcrypt = jest.mocked(bcrypt);
 
 describe('AuthService', () => {
 	let service: AuthService;
-	let usersService: UsersService;
-	let jwtService: JwtService;
 
 	const mockUsersService = {
 		findByEmail: jest.fn(),
@@ -40,8 +38,6 @@ describe('AuthService', () => {
 		}).compile();
 
 		service = module.get<AuthService>(AuthService);
-		usersService = module.get<UsersService>(UsersService);
-		jwtService = module.get<JwtService>(JwtService);
 	});
 
 	afterEach(() => {
@@ -61,12 +57,12 @@ describe('AuthService', () => {
 			};
 
 			mockUsersService.findByEmail.mockResolvedValue(mockUser);
-			mockedBcrypt.hash.mockResolvedValue('hashedPassword' as never);
+			mockedBcrypt.compare.mockResolvedValue('hashedPassword' as never);
 
 			const result = await service.validateUser('test@example.com', 'password123');
 
 			expect(mockUsersService.findByEmail).toHaveBeenCalledWith('test@example.com');
-			expect(mockedBcrypt.hash).toHaveBeenCalledWith('password123', 'hashedPassword');
+			expect(mockedBcrypt.compare).toHaveBeenCalledWith('password123', 'hashedPassword');
 			expect(result).toEqual(mockUser);
 		});
 
@@ -87,13 +83,13 @@ describe('AuthService', () => {
 			};
 
 			mockUsersService.findByEmail.mockResolvedValue(mockUser);
-			mockedBcrypt.hash.mockResolvedValue(null as never); // bcrypt.hash returning null/falsy to trigger UnauthorizedException
+			mockedBcrypt.compare.mockResolvedValue(null as never); // bcrypt.hash returning null/falsy to trigger UnauthorizedException
 
 			await expect(service.validateUser('test@example.com', 'wrongPassword'))
 				.rejects.toThrow(UnauthorizedException);
 
 			expect(mockUsersService.findByEmail).toHaveBeenCalledWith('test@example.com');
-			expect(mockedBcrypt.hash).toHaveBeenCalledWith('wrongPassword', 'hashedPassword');
+			expect(mockedBcrypt.compare).toHaveBeenCalledWith('wrongPassword', 'hashedPassword');
 		});
 	});
 
@@ -119,7 +115,7 @@ describe('AuthService', () => {
 			const mockToken = 'jwt.token.here';
 
 			mockUsersService.findByEmail.mockResolvedValue(mockUser);
-			mockedBcrypt.hash.mockResolvedValue('hashedPassword' as never);
+			mockedBcrypt.compare.mockResolvedValue('hashedPassword' as never);
 			mockJwtService.sign.mockReturnValue(mockToken);
 
 			const result = await service.login(userLoginDto);
@@ -150,7 +146,7 @@ describe('AuthService', () => {
 			const mockToken = 'jwt.token.here';
 
 			mockUsersService.findByEmail.mockResolvedValue(mockUser);
-			mockedBcrypt.hash.mockResolvedValue('hashedPassword' as never);
+			mockedBcrypt.compare.mockResolvedValue('hashedPassword' as never);
 			mockJwtService.sign.mockReturnValue(mockToken);
 
 			const result = await service.login(userLoginDto);
