@@ -1,8 +1,12 @@
 import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { Express } from 'express'; 
+import { Express } from 'express';
 import request, { Response } from 'supertest';
 import { AppModule } from '../src/app.module';
+
+interface LoginResponse {
+  access_token: string;
+}
 
 describe('AuthController (e2e)', () => {
 	let app: INestApplication;
@@ -31,14 +35,14 @@ describe('AuthController (e2e)', () => {
 			})
 			.expect(201);
 
-		const body = response.body as { access_token: string };
+		const { access_token } = response.body as LoginResponse;
 
-		expect(body).toHaveProperty('access_token');
-		expect(typeof body.access_token).toBe('string');
+		expect(access_token).toBeDefined();
+		expect(typeof access_token).toBe('string');
 	});
 
 	it('/auth/login (POST) — credenciales incorrectas', async () => {
-		const server = app.getHttpServer() as Express; // ✅ tipado seguro
+		const server = app.getHttpServer() as Express;
 
 		const response: Response = await request(server)
 			.post('/auth/login')
