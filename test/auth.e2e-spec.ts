@@ -1,6 +1,6 @@
 import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { Express } from 'express'; // ✅ añadimos el tipo
+import { Express } from 'express'; 
 import request, { Response } from 'supertest';
 import { AppModule } from '../src/app.module';
 
@@ -38,7 +38,7 @@ describe('AuthController (e2e)', () => {
 	});
 
 	it('/auth/login (POST) — credenciales incorrectas', async () => {
-		const server = app.getHttpServer() as Express; // ✅ tipado seguro
+		const server = app.getHttpServer() as Express; 
 
 		const response: Response = await request(server)
 			.post('/auth/login')
