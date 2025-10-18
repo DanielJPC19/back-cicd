@@ -81,6 +81,7 @@ export class RolesController {
 	@ApiResponse({ status: 403, description: 'Permisos insuficientes' })
 	@ApiResponse({ status: 404, description: 'Rol o permisos no encontrados.' })
 	@Permissions('role_add_permission')
+	@HttpCode(200)
 	@Post('permission')
 	addPermission(@Body() addPermissionDto: AddPermissionDto) {
 		return this.roleService.addPermission(addPermissionDto);
