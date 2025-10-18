@@ -162,14 +162,14 @@
 							}
 						],
 						"url": {
-							"raw": "{{base}}/medical-records/pet/1",
+							"raw": "{{base}}/medical-records/pet/2",
 							"host": [
 								"{{base}}"
 							],
 							"path": [
 								"medical-records",
 								"pet",
-								"1"
+								"2"
 							]
 						}
 					},
@@ -1003,7 +1003,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"petId\": 1,\n    \"veterinarianId\": 1,\n    \"openingDate\": \"2024-10-12\",\n    \"weight\": 30.5,\n    \"size\": \"large\",\n    \"allergies\": \"Sin alergias conocidas\",\n    \"vaccinationStatus\": \"Al día\"\n}",
+							"raw": "{\n    \"petId\": 2,\n    \"veterinarianId\": 1,\n    \"openingDate\": \"2024-10-12\",\n    \"weight\": 30.5,\n    \"size\": \"large\",\n    \"allergies\": \"Sin alergias conocidas\",\n    \"vaccinationStatus\": \"Al día\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1108,12 +1108,12 @@
 							}
 						],
 						"url": {
-							"raw": "{{medical_records}}pet/1",
+							"raw": "{{medical_records}}pet/2",
 							"host": [
 								"{{medical_records}}pet"
 							],
 							"path": [
-								"1"
+								"2"
 							]
 						}
 					},
@@ -1339,14 +1339,14 @@
 							}
 						],
 						"url": {
-							"raw": "{{base}}/diagnostics/by-pet/1",
+							"raw": "{{base}}/diagnostics/by-pet/3",
 							"host": [
 								"{{base}}"
 							],
 							"path": [
 								"diagnostics",
 								"by-pet",
-								"1"
+								"3"
 							]
 						}
 					},

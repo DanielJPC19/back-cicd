@@ -38,7 +38,7 @@ describe('AuthController (e2e)', () => {
 	});
 
 	it('/auth/login (POST) — credenciales incorrectas', async () => {
-		const server = app.getHttpServer() as Express; // ✅ tipado seguro
+		const server = app.getHttpServer() as Express; 
 
 		const response: Response = await request(server)
 			.post('/auth/login')
