@@ -21,12 +21,16 @@ export class AppointmentsService {
 
 	// Schedule methods
 	async createSchedule(createScheduleDto: CreateScheduleDto, userId: number): Promise<Schedule> {
-		const schedule = this.scheduleRepository.create({
-			...createScheduleDto,
-			user: { id: userId },
-		});
+		try {
+			const schedule = this.scheduleRepository.create({
+				...createScheduleDto,
+				user: { id: userId },
+			});
 
-		return await this.scheduleRepository.save(schedule);
+			return await this.scheduleRepository.save(schedule);
+		} catch (error) {
+			throw new BadRequestException('Failed to create schedule: ' + error.message);
+		}
 	}
 
 	async findAllSchedules(userId: number, paginationDto: PaginationDto): Promise<{ schedules: Schedule[]; total: number }> {
@@ -57,10 +61,26 @@ export class AppointmentsService {
 	}
 
 	async updateSchedule(id: number, updateScheduleDto: UpdateScheduleDto, userId: number): Promise<Schedule> {
-		const schedule = await this.findOneSchedule(id, userId);
-		
-		Object.assign(schedule, updateScheduleDto);
-		return await this.scheduleRepository.save(schedule);
+		try {
+			const schedule = await this.findOneSchedule(id, userId);
+			
+			// Validar datos antes de actualizar
+			if (updateScheduleDto.startTime && updateScheduleDto.endTime) {
+				const startTime = new Date(`1970-01-01T${updateScheduleDto.startTime}`);
+				const endTime = new Date(`1970-01-01T${updateScheduleDto.endTime}`);
+				if (startTime >= endTime) {
+					throw new BadRequestException('Start time must be before end time');
+				}
+			}
+
+			Object.assign(schedule, updateScheduleDto);
+			return await this.scheduleRepository.save(schedule);
+		} catch (error) {
+			if (error instanceof NotFoundException || error instanceof BadRequestException) {
+				throw error;
+			}
+			throw new BadRequestException('Failed to update schedule: ' + error.message);
+		}
 	}
 
 	async removeSchedule(id: number, userId: number): Promise<void> {
@@ -71,28 +91,53 @@ export class AppointmentsService {
 
 	// Appointment methods
 	async createAppointment(createAppointmentDto: CreateAppointmentDto): Promise<Appointment> {
-		// Check for time conflicts
-		await this.checkTimeConflicts(
-			createAppointmentDto.appointmentDate,
-			createAppointmentDto.startTime,
-			createAppointmentDto.endTime,
-			createAppointmentDto.veterinarianId,
-		);
+		try {
+			// Check for time conflicts
+			await this.checkTimeConflicts(
+				createAppointmentDto.appointmentDate,
+				createAppointmentDto.startTime,
+				createAppointmentDto.endTime,
+				createAppointmentDto.veterinarianId,
+			);
 
-		const appointment = this.appointmentRepository.create(createAppointmentDto);
-		const savedAppointment = await this.appointmentRepository.save(appointment);
+			// Crear appointment con relaciones correctas
+			const appointment = this.appointmentRepository.create({
+				...createAppointmentDto,
+				veterinarian: { id: createAppointmentDto.veterinarianId },
+				pet: { id: createAppointmentDto.petId },
+				schedule: { id: createAppointmentDto.scheduleId },
+				...(createAppointmentDto.diagnosticId && { diagnostic: { id: createAppointmentDto.diagnosticId } })
+			});
 
-		// Sync with Google Calendar if service is initialized
-		if (this.googleCalendarService.isInitialized()) {
-			try {
-				await this.syncAppointmentWithGoogleCalendar(savedAppointment);
-			} catch (error) {
-				// Log error but don't fail the appointment creation
-				console.error('Failed to sync appointment with Google Calendar:', error);
+			const savedAppointment = await this.appointmentRepository.save(appointment);
+
+			// Cargar relaciones para el resultado
+			const appointmentWithRelations = await this.appointmentRepository.findOne({
+				where: { id: savedAppointment.id },
+				relations: ['veterinarian', 'pet', 'schedule', 'diagnostic']
+			});
+
+			if (!appointmentWithRelations) {
+				throw new BadRequestException('Failed to retrieve created appointment');
 			}
-		}
 
-		return savedAppointment;
+			// Sync with Google Calendar if service is initialized
+			if (this.googleCalendarService.isInitialized()) {
+				try {
+					await this.syncAppointmentWithGoogleCalendar(appointmentWithRelations);
+				} catch (error) {
+					// Log error but don't fail the appointment creation
+					console.error('Failed to sync appointment with Google Calendar:', error);
+				}
+			}
+
+			return appointmentWithRelations;
+		} catch (error) {
+			if (error instanceof ConflictException || error instanceof BadRequestException) {
+				throw error;
+			}
+			throw new BadRequestException('Failed to create appointment: ' + error.message);
+		}
 	}
 
 	async findAllAppointments(paginationDto: PaginationDto): Promise<{ appointments: Appointment[]; total: number }> {
@@ -151,32 +196,73 @@ export class AppointmentsService {
 	}
 
 	async updateAppointment(id: number, updateAppointmentDto: UpdateAppointmentDto): Promise<Appointment> {
-		const appointment = await this.findOneAppointment(id);
+		try {
+			const appointment = await this.findOneAppointment(id);
 
-		// Check for time conflicts if time is being updated
-		if (updateAppointmentDto.startTime || updateAppointmentDto.endTime || updateAppointmentDto.appointmentDate) {
-			const appointmentDate = updateAppointmentDto.appointmentDate || appointment.appointmentDate;
-			const startTime = updateAppointmentDto.startTime || appointment.startTime;
-			const endTime = updateAppointmentDto.endTime || appointment.endTime;
-			const veterinarianId = updateAppointmentDto.veterinarianId || appointment.veterinarian.id;
+			// Check for time conflicts if time is being updated
+			if (updateAppointmentDto.startTime || updateAppointmentDto.endTime || updateAppointmentDto.appointmentDate) {
+				const appointmentDate = updateAppointmentDto.appointmentDate || appointment.appointmentDate;
+				const startTime = updateAppointmentDto.startTime || appointment.startTime;
+				const endTime = updateAppointmentDto.endTime || appointment.endTime;
+				const veterinarianId = updateAppointmentDto.veterinarianId || appointment.veterinarian.id;
 
-			await this.checkTimeConflicts(appointmentDate, startTime, endTime, veterinarianId, id);
-		}
-
-		Object.assign(appointment, updateAppointmentDto);
-		const updatedAppointment = await this.appointmentRepository.save(appointment);
-
-		// Sync with Google Calendar if service is initialized
-		if (this.googleCalendarService.isInitialized()) {
-			try {
-				await this.syncAppointmentWithGoogleCalendar(updatedAppointment);
-			} catch (error) {
-				// Log error but don't fail the appointment update
-				console.error('Failed to sync appointment with Google Calendar:', error);
+				await this.checkTimeConflicts(appointmentDate, startTime, endTime, veterinarianId, id);
 			}
-		}
 
-		return updatedAppointment;
+			// Actualizar campos básicos
+			const updateData: any = { ...updateAppointmentDto };
+
+			// Manejar relaciones correctamente
+			if (updateAppointmentDto.veterinarianId) {
+				updateData.veterinarian = { id: updateAppointmentDto.veterinarianId };
+				delete updateData.veterinarianId;
+			}
+
+			if (updateAppointmentDto.petId) {
+				updateData.pet = { id: updateAppointmentDto.petId };
+				delete updateData.petId;
+			}
+
+			if (updateAppointmentDto.scheduleId) {
+				updateData.schedule = { id: updateAppointmentDto.scheduleId };
+				delete updateData.scheduleId;
+			}
+
+			if (updateAppointmentDto.diagnosticId) {
+				updateData.diagnostic = { id: updateAppointmentDto.diagnosticId };
+				delete updateData.diagnosticId;
+			}
+
+			// Actualizar usando el repository
+			await this.appointmentRepository.update(id, updateData);
+
+			// Obtener el appointment actualizado con todas las relaciones
+			const updatedAppointment = await this.appointmentRepository.findOne({
+				where: { id },
+				relations: ['veterinarian', 'pet', 'schedule', 'diagnostic']
+			});
+
+			if (!updatedAppointment) {
+				throw new NotFoundException(`Appointment with ID ${id} not found after update`);
+			}
+
+			// Sync with Google Calendar if service is initialized
+			if (this.googleCalendarService.isInitialized()) {
+				try {
+					await this.syncAppointmentWithGoogleCalendar(updatedAppointment);
+				} catch (error) {
+					// Log error but don't fail the appointment update
+					console.error('Failed to sync appointment with Google Calendar:', error);
+				}
+			}
+
+			return updatedAppointment;
+		} catch (error) {
+			if (error instanceof NotFoundException || error instanceof ConflictException || error instanceof BadRequestException) {
+				throw error;
+			}
+			throw new BadRequestException('Failed to update appointment: ' + error.message);
+		}
 	}
 
 	async removeAppointment(id: number): Promise<void> {
@@ -235,26 +321,36 @@ export class AppointmentsService {
 	 * Sincroniza un appointment con Google Calendar
 	 */
 	private async syncAppointmentWithGoogleCalendar(appointment: Appointment): Promise<void> {
-		const appointmentEvent: AppointmentCalendarEvent = {
-			appointmentId: appointment.id,
-			title: `${appointment.type} - ${appointment.pet.name}`,
-			description: appointment.notes || appointment.reason,
-			startDateTime: new Date(`${appointment.appointmentDate.toISOString().split('T')[0]}T${appointment.startTime}`),
-			endDateTime: new Date(`${appointment.appointmentDate.toISOString().split('T')[0]}T${appointment.endTime}`),
-			veterinarianEmail: appointment.veterinarian.email,
-			petOwnerEmail: appointment.pet.owner.email,
-			location: 'Veterinary Clinic', // Puedes hacer esto configurable
-		};
+		try {
+			// Verificar que tenemos todas las relaciones necesarias
+			if (!appointment.pet || !appointment.veterinarian) {
+				throw new Error('Missing required relations for Google Calendar sync');
+			}
 
-		const googleEvent = await this.googleCalendarService.syncAppointmentWithCalendar(
-			appointmentEvent,
-			appointment.googleCalendarEventId,
-		);
+			const appointmentEvent: AppointmentCalendarEvent = {
+				appointmentId: appointment.id,
+				title: `${appointment.type} - ${appointment.pet.name}`,
+				description: appointment.notes || appointment.reason || 'Veterinary appointment',
+				startDateTime: new Date(`${appointment.appointmentDate.toISOString().split('T')[0]}T${appointment.startTime}`),
+				endDateTime: new Date(`${appointment.appointmentDate.toISOString().split('T')[0]}T${appointment.endTime}`),
+				veterinarianEmail: appointment.veterinarian.email,
+				petOwnerEmail: appointment.pet.owner?.email,
+				location: 'Veterinary Clinic', // Puedes hacer esto configurable
+			};
 
-		// Actualizar el appointment con el ID del evento de Google Calendar
-		if (googleEvent.id && !appointment.googleCalendarEventId) {
-			appointment.googleCalendarEventId = googleEvent.id;
-			await this.appointmentRepository.save(appointment);
+			const googleEvent = await this.googleCalendarService.syncAppointmentWithCalendar(
+				appointmentEvent,
+				appointment.googleCalendarEventId,
+			);
+
+			// Actualizar el appointment con el ID del evento de Google Calendar
+			if (googleEvent.id && !appointment.googleCalendarEventId) {
+				await this.appointmentRepository.update(appointment.id, {
+					googleCalendarEventId: googleEvent.id
+				});
+			}
+		} catch (error) {
+			throw new Error(`Failed to sync with Google Calendar: ${error.message}`);
 		}
 	}
 }

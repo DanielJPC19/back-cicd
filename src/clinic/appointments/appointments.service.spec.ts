@@ -33,7 +33,7 @@ describe('AppointmentsService', () => {
 		isDeleted: false,
 		createdAt: new Date(),
 		updatedAt: new Date(),
-		deletedAt: null,
+		deletedAt: null as any,
 		user: { id: 1 } as any,
 		appointments: [],
 	};
@@ -47,14 +47,14 @@ describe('AppointmentsService', () => {
 		type: AppointmentType.CONSULTATION,
 		notes: 'Test notes',
 		reason: 'Regular checkup',
-		googleCalendarEventId: null,
+		googleCalendarEventId: null as any,
 		isDeleted: false,
 		createdAt: new Date(),
 		updatedAt: new Date(),
-		deletedAt: null,
+		deletedAt: null as any,
 		veterinarian: { id: 1, email: 'vet@test.com' } as any,
 		pet: { id: 1, name: 'Buddy', owner: { email: 'owner@test.com' } } as any,
-		diagnostic: null,
+		diagnostic: null as any,
 		schedule: mockSchedule,
 	};
 
@@ -76,6 +76,7 @@ describe('AppointmentsService', () => {
 		save: jest.fn(),
 		findAndCount: jest.fn(),
 		findOne: jest.fn(),
+		update: jest.fn(),
 		createQueryBuilder: jest.fn(),
 	};
 
@@ -171,7 +172,7 @@ describe('AppointmentsService', () => {
 			});
 
 			it('should handle default pagination values', async () => {
-				const paginationDto: PaginationDto = {};
+				const paginationDto: PaginationDto = { page: 1, limit: 10 };
 				mockScheduleRepository.findAndCount.mockResolvedValue([[mockSchedule], 1]);
 
 				const result = await service.findAllSchedules(1, paginationDto);
@@ -256,6 +257,7 @@ describe('AppointmentsService', () => {
 				jest.spyOn(service as any, 'checkTimeConflicts').mockResolvedValue(undefined);
 				mockAppointmentRepository.create.mockReturnValue(mockAppointment);
 				mockAppointmentRepository.save.mockResolvedValue(mockAppointment);
+				mockAppointmentRepository.findOne.mockResolvedValue(mockAppointment);
 				mockGoogleCalendarService.isInitialized.mockReturnValue(false);
 
 				const result = await service.createAppointment(createAppointmentDto);
@@ -266,8 +268,17 @@ describe('AppointmentsService', () => {
 					createAppointmentDto.endTime,
 					createAppointmentDto.veterinarianId
 				);
-				expect(mockAppointmentRepository.create).toHaveBeenCalledWith(createAppointmentDto);
+				expect(mockAppointmentRepository.create).toHaveBeenCalledWith({
+					...createAppointmentDto,
+					veterinarian: { id: createAppointmentDto.veterinarianId },
+					pet: { id: createAppointmentDto.petId },
+					schedule: { id: createAppointmentDto.scheduleId },
+				});
 				expect(mockAppointmentRepository.save).toHaveBeenCalledWith(mockAppointment);
+				expect(mockAppointmentRepository.findOne).toHaveBeenCalledWith({
+					where: { id: mockAppointment.id },
+					relations: ['veterinarian', 'pet', 'schedule', 'diagnostic']
+				});
 				expect(result).toEqual(mockAppointment);
 			});
 
@@ -291,6 +302,7 @@ describe('AppointmentsService', () => {
 				jest.spyOn(service as any, 'syncAppointmentWithGoogleCalendar').mockResolvedValue(undefined);
 				mockAppointmentRepository.create.mockReturnValue(mockAppointment);
 				mockAppointmentRepository.save.mockResolvedValue(mockAppointment);
+				mockAppointmentRepository.findOne.mockResolvedValue(mockAppointment);
 				mockGoogleCalendarService.isInitialized.mockReturnValue(true);
 
 				const result = await service.createAppointment(createAppointmentDto);
@@ -317,6 +329,7 @@ describe('AppointmentsService', () => {
 				jest.spyOn(service as any, 'syncAppointmentWithGoogleCalendar').mockRejectedValue(new Error('Google API Error'));
 				mockAppointmentRepository.create.mockReturnValue(mockAppointment);
 				mockAppointmentRepository.save.mockResolvedValue(mockAppointment);
+				mockAppointmentRepository.findOne.mockResolvedValue(mockAppointment);
 				mockGoogleCalendarService.isInitialized.mockReturnValue(true);
 
 				const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
@@ -409,13 +422,18 @@ describe('AppointmentsService', () => {
 				const updatedAppointment = { ...mockAppointment, notes: 'Updated notes' };
 
 				jest.spyOn(service, 'findOneAppointment').mockResolvedValue(mockAppointment);
-				mockAppointmentRepository.save.mockResolvedValue(updatedAppointment);
+				mockAppointmentRepository.update.mockResolvedValue({ affected: 1 });
+				mockAppointmentRepository.findOne.mockResolvedValue(updatedAppointment);
 				mockGoogleCalendarService.isInitialized.mockReturnValue(false);
 
 				const result = await service.updateAppointment(1, updateAppointmentDto);
 
 				expect(service.findOneAppointment).toHaveBeenCalledWith(1);
-				expect(mockAppointmentRepository.save).toHaveBeenCalledWith(updatedAppointment);
+				expect(mockAppointmentRepository.update).toHaveBeenCalledWith(1, updateAppointmentDto);
+				expect(mockAppointmentRepository.findOne).toHaveBeenCalledWith({
+					where: { id: 1 },
+					relations: ['veterinarian', 'pet', 'schedule', 'diagnostic']
+				});
 				expect(result).toEqual(updatedAppointment);
 			});
 
@@ -428,7 +446,8 @@ describe('AppointmentsService', () => {
 
 				jest.spyOn(service, 'findOneAppointment').mockResolvedValue(mockAppointment);
 				jest.spyOn(service as any, 'checkTimeConflicts').mockResolvedValue(undefined);
-				mockAppointmentRepository.save.mockResolvedValue(updatedAppointment);
+				mockAppointmentRepository.update.mockResolvedValue({ affected: 1 });
+				mockAppointmentRepository.findOne.mockResolvedValue(updatedAppointment);
 				mockGoogleCalendarService.isInitialized.mockReturnValue(false);
 
 				const result = await service.updateAppointment(1, updateAppointmentDto);
@@ -440,6 +459,14 @@ describe('AppointmentsService', () => {
 					mockAppointment.veterinarian.id,
 					1
 				);
+				expect(mockAppointmentRepository.update).toHaveBeenCalledWith(1, {
+					startTime: '11:00',
+					endTime: '11:30',
+				});
+				expect(mockAppointmentRepository.findOne).toHaveBeenCalledWith({
+					where: { id: 1 },
+					relations: ['veterinarian', 'pet', 'schedule', 'diagnostic']
+				});
 				expect(result).toEqual(updatedAppointment);
 			});
 
@@ -449,11 +476,17 @@ describe('AppointmentsService', () => {
 
 				jest.spyOn(service, 'findOneAppointment').mockResolvedValue(mockAppointment);
 				jest.spyOn(service as any, 'syncAppointmentWithGoogleCalendar').mockResolvedValue(undefined);
-				mockAppointmentRepository.save.mockResolvedValue(updatedAppointment);
+				mockAppointmentRepository.update.mockResolvedValue({ affected: 1 });
+				mockAppointmentRepository.findOne.mockResolvedValue(updatedAppointment);
 				mockGoogleCalendarService.isInitialized.mockReturnValue(true);
 
 				const result = await service.updateAppointment(1, updateAppointmentDto);
 
+				expect(mockAppointmentRepository.update).toHaveBeenCalledWith(1, updateAppointmentDto);
+				expect(mockAppointmentRepository.findOne).toHaveBeenCalledWith({
+					where: { id: 1 },
+					relations: ['veterinarian', 'pet', 'schedule', 'diagnostic']
+				});
 				expect(service['syncAppointmentWithGoogleCalendar']).toHaveBeenCalledWith(updatedAppointment);
 				expect(result).toEqual(updatedAppointment);
 			});
@@ -552,10 +585,10 @@ describe('AppointmentsService', () => {
 		describe('syncAppointmentWithGoogleCalendar', () => {
 			it('should sync appointment with Google Calendar and update event ID', async () => {
 				const googleEvent = { id: 'google-event-id' };
-				const appointmentWithoutGoogleId = { ...mockAppointment, googleCalendarEventId: null };
+				const appointmentWithoutGoogleId = { ...mockAppointment, googleCalendarEventId: null as any };
 
 				mockGoogleCalendarService.syncAppointmentWithCalendar.mockResolvedValue(googleEvent);
-				mockAppointmentRepository.save.mockResolvedValue(appointmentWithoutGoogleId);
+				mockAppointmentRepository.update.mockResolvedValue({ affected: 1 });
 
 				await service['syncAppointmentWithGoogleCalendar'](appointmentWithoutGoogleId);
 
@@ -563,14 +596,13 @@ describe('AppointmentsService', () => {
 					expect.objectContaining({
 						appointmentId: mockAppointment.id,
 						title: `${mockAppointment.type} - ${mockAppointment.pet.name}`,
-						description: mockAppointment.notes,
+						description: mockAppointment.notes || mockAppointment.reason || 'Veterinary appointment',
 						veterinarianEmail: mockAppointment.veterinarian.email,
-						petOwnerEmail: mockAppointment.pet.owner.email,
+						petOwnerEmail: mockAppointment.pet.owner?.email,
 					}),
 					null
 				);
-				expect(mockAppointmentRepository.save).toHaveBeenCalledWith({
-					...appointmentWithoutGoogleId,
+				expect(mockAppointmentRepository.update).toHaveBeenCalledWith(appointmentWithoutGoogleId.id, {
 					googleCalendarEventId: 'google-event-id',
 				});
 			});
@@ -587,7 +619,7 @@ describe('AppointmentsService', () => {
 					expect.any(Object),
 					'existing-id'
 				);
-				expect(mockAppointmentRepository.save).not.toHaveBeenCalled();
+				expect(mockAppointmentRepository.update).not.toHaveBeenCalled();
 			});
 		});
 	});
