@@ -62,3 +62,4 @@ export class Schedule {
 	@OneToMany(() => Appointment, (appointment) => appointment.schedule)
 		appointments: Appointment[];
 }
+

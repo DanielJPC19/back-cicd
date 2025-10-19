@@ -5,3 +5,4 @@ describe('Schedule', () => {
 		expect(new Schedule()).toBeDefined();
 	});
 });
+

@@ -93,3 +93,4 @@ export class UpdateAppointmentDto {
 	@Min(1)
 		scheduleId?: number;
 }
+

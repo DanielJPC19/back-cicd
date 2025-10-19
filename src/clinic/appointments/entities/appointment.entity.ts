@@ -79,3 +79,4 @@ export class Appointment {
 	@JoinColumn({ name: 'schedule_id' })
 		schedule: Schedule;
 }
+
