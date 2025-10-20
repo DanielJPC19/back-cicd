@@ -7,6 +7,7 @@ import { AppService } from './app.service';
 import { CatalogsModule } from './catalogs/catalogs.module';
 import { ClinicModule } from './clinic/clinic.module';
 import { AuthModule } from './core/auth/auth.module';
+import { GoogleCalendarModule } from './core/integrations/google-calendar/google-calendar.module';
 
 type SupportedDbTypes =
 	| 'mysql'
@@ -41,6 +42,7 @@ type SupportedDbTypes =
 		AuthModule,
 		CatalogsModule,
 		ClinicModule,
+		GoogleCalendarModule,
 	],
 	controllers: [AppController],
 	providers: [AppService],

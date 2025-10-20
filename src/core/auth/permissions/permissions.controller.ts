@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, Param, ParseIntPipe, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Permissions } from '../decorators/permissions.decorator';
@@ -69,6 +69,7 @@ export class PermissionsController {
 	@ApiResponse({ status: 403, description: 'Permisos insuficientes.' })
 	@ApiResponse({ status: 404, description: 'Permiso no encontrado.' })
 	@Permissions('permission_delete')
+	@HttpCode(204)
 	@Delete(':id')
 	async removeById(@Param('id', ParseIntPipe) id: number){
 		await this.permissionService.removeById(id);

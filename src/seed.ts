@@ -4,6 +4,8 @@ import { DataSource } from 'typeorm';
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 import { DiagnosticType } from './catalogs/diagnostic-types/entities/diagnostic-type.entity';
 import { Species } from './catalogs/species/entities/species.entity';
+import { Appointment, AppointmentStatus, AppointmentType } from './clinic/appointments/entities/appointment.entity';
+import { Schedule, ScheduleStatus } from './clinic/appointments/entities/schedule.entity';
 import { Diagnostic, DiagnosticSeverity } from './clinic/diagnostics/entities/diagnostic.entity';
 import { MedicalRecord, PetSize } from './clinic/medical-records/entities/medical-record.entity';
 import { Pet, PetGender } from './clinic/pets/entities/pet.entity';
@@ -37,7 +39,9 @@ async function seed() {
 	await AppDataSource.initialize();
 
 	console.log('Limpiando tablas...');
+	// Nota: Agregar appointments y schedules cuando se implementen las entidades
 	await AppDataSource.query('TRUNCATE TABLE diagnostics, medical_records, pets, species, diagnostic_types, roles_permissions, users, roles, permissions RESTART IDENTITY CASCADE');
+	// await AppDataSource.query('TRUNCATE TABLE diagnostics, medical_records, pets, species, diagnostic_types, appointments, schedules, roles_permissions, users, roles, permissions RESTART IDENTITY CASCADE');
 
 	console.log('Creando roles...');
 	const adminRole = AppDataSource.manager.create(Role, {
@@ -66,6 +70,10 @@ async function seed() {
 		'CREATE_SPECIES', 'READ_SPECIES', 'UPDATE_SPECIES', 'DELETE_SPECIES',
 		// Permisos para catálogos (Diagnostic Types)
 		'CREATE_DIAGNOSTIC_TYPE', 'READ_DIAGNOSTIC_TYPE', 'UPDATE_DIAGNOSTIC_TYPE', 'DELETE_DIAGNOSTIC_TYPE',
+		// Permisos para appointments (citas médicas)
+		'appointment_create', 'appointment_read', 'appointment_update', 'appointment_delete', 'appointment_cancel',
+		// Permisos para schedules (horarios de veterinarios)
+		'schedule_create', 'schedule_read', 'schedule_update', 'schedule_delete',
 	].map((name) => AppDataSource.manager.create(Permission, { permissionName: name }));
 
 	await AppDataSource.manager.save(permissions);
@@ -74,23 +82,26 @@ async function seed() {
 
 	console.log('Asignando permisos...');
 	
-	// ADMIN: TODOS los permisos EXCEPTO medical records y diagnostics
+	// ADMIN: TODOS los permisos EXCEPTO medical records, diagnostics y appointments médicas
 	adminRole.permissions = allPermissions.filter((p) =>
 		!['medical_record_create', 'medical_record_read', 'medical_record_update', 'medical_record_delete',
-		  'diagnostic_create', 'diagnostic_read', 'diagnostic_update', 'diagnostic_delete'].includes(p.permissionName)
+		  'diagnostic_create', 'diagnostic_read', 'diagnostic_update', 'diagnostic_delete',
+		  'appointment_create', 'appointment_read', 'appointment_update', 'appointment_delete', 'appointment_cancel'].includes(p.permissionName)
 	);
 
-	// VETERINARIO: Solo funciones médicas
+	// VETERINARIO: Solo funciones médicas + gestión de citas y horarios
 	veterinarianRole.permissions = allPermissions.filter((p) =>
 		['pet_read', 'pet_update',
 		 'medical_record_create', 'medical_record_read', 'medical_record_update', 'medical_record_delete',
 		 'diagnostic_create', 'diagnostic_read', 'diagnostic_update', 'diagnostic_delete',
+		 'appointment_create', 'appointment_read', 'appointment_update', 'appointment_delete', 'appointment_cancel',
+		 'schedule_create', 'schedule_read', 'schedule_update', 'schedule_delete',
 		 'READ_SPECIES', 'READ_DIAGNOSTIC_TYPE'].includes(p.permissionName)
 	);
 
-	// USUARIO/PROPIETARIO: SOLO LECTURA - únicamente sus mascotas y registros médicos
+	// USUARIO/PROPIETARIO: SOLO LECTURA - únicamente sus mascotas, registros médicos y citas
 	userRole.permissions = allPermissions.filter((p) =>
-		['pet_read', 'medical_record_read'].includes(p.permissionName)
+		['pet_read', 'medical_record_read', 'appointment_read'].includes(p.permissionName)
 	);
 
 	await AppDataSource.manager.save([adminRole, veterinarianRole, userRole]);
@@ -291,6 +302,139 @@ async function seed() {
 	}
 
 	await AppDataSource.manager.save(diagnostics);
+
+	// ============================================
+	// DATOS DE CARGA PARA SCHEDULES Y APPOINTMENTS
+	// ============================================
+	
+	console.log('Creando horarios de veterinarios (schedules)...');
+	
+	// Horarios de disponibilidad del veterinario
+	const schedules = [
+		{
+			name: 'Horario Semanal Dr. Veterinario',
+			description: 'Horario de atención de lunes a viernes',
+			startTime: '08:00',
+			endTime: '17:00',
+			daysOfWeek: [1, 2, 3, 4, 5], // Lunes a Viernes (1=Monday, 2=Tuesday, etc.)
+			appointmentDuration: 30,
+			breakDuration: 15,
+			status: ScheduleStatus.ACTIVE,
+			user: veterinarianUser,
+		},
+		{
+			name: 'Horario Sábados Dr. Veterinario',
+			description: 'Horario de atención los sábados',
+			startTime: '09:00',
+			endTime: '14:00',
+			daysOfWeek: [6], // Sábado (6=Saturday)
+			appointmentDuration: 30,
+			breakDuration: 15,
+			status: ScheduleStatus.ACTIVE,
+			user: veterinarianUser,
+		},
+	].map((data) => AppDataSource.manager.create(Schedule, data));
+
+	const savedSchedules = await AppDataSource.manager.save(schedules);
+
+	console.log('Creando citas médicas (appointments)...');
+	
+	// Citas programadas para las próximas semanas
+	const appointments = [
+		{
+			pet: savedPets[0], // Firulais
+			veterinarian: veterinarianUser,
+			appointmentDate: new Date('2024-11-15T09:00:00'),
+			startTime: '09:00',
+			endTime: '09:30',
+			type: AppointmentType.CONSULTATION,
+			status: AppointmentStatus.SCHEDULED,
+			reason: 'Chequeo de rutina y vacunación anual',
+			notes: 'Propietario reporta que la mascota está activa y comiendo bien',
+		},
+		{
+			pet: savedPets[1], // Mishi
+			veterinarian: veterinarianUser,
+			appointmentDate: new Date('2024-11-16T10:30:00'),
+			startTime: '10:30',
+			endTime: '10:50',
+			type: AppointmentType.FOLLOW_UP,
+			status: AppointmentStatus.SCHEDULED,
+			reason: 'Control post-vacunación',
+			notes: 'Revisar reacción a vacunas aplicadas el mes pasado',
+		},
+		{
+			pet: savedPets[2], // Piolín
+			veterinarian: veterinarianUser,
+			appointmentDate: new Date('2024-11-18T14:00:00'),
+			startTime: '14:00',
+			endTime: '14:25',
+			type: AppointmentType.CONSULTATION,
+			status: AppointmentStatus.SCHEDULED,
+			reason: 'Revisión de plumaje y comportamiento',
+			notes: 'Propietario nota cambios en el canto del ave',
+		},
+		{
+			pet: savedPets[0], // Firulais
+			veterinarian: veterinarianUser,
+			appointmentDate: new Date('2024-11-20T11:00:00'),
+			startTime: '11:00',
+			endTime: '11:45',
+			type: AppointmentType.EMERGENCY,
+			status: AppointmentStatus.COMPLETED,
+			reason: 'Consulta de emergencia por vómitos',
+			notes: 'Mascota presentó vómitos durante la madrugada. Se realizó examen y tratamiento.',
+		},
+		{
+			pet: savedPets[1], // Mishi
+			veterinarian: veterinarianUser,
+			appointmentDate: new Date('2024-11-22T15:30:00'),
+			startTime: '15:30',
+			endTime: '17:00',
+			type: AppointmentType.SURGERY,
+			status: AppointmentStatus.SCHEDULED,
+			reason: 'Esterilización programada',
+			notes: 'Cirugía de esterilización. Propietaria confirmó ayuno de 12 horas.',
+		},
+		{
+			pet: savedPets[2], // Piolín
+			veterinarian: veterinarianUser,
+			appointmentDate: new Date('2024-11-25T09:30:00'),
+			startTime: '09:30',
+			endTime: '09:50',
+			type: AppointmentType.CONSULTATION,
+			status: AppointmentStatus.CANCELLED,
+			reason: 'Chequeo de seguimiento',
+			notes: 'Cita cancelada por el propietario - mascota mejoró completamente',
+		},
+		{
+			pet: savedPets[0], // Firulais
+			veterinarian: veterinarianUser,
+			appointmentDate: new Date('2024-12-01T10:00:00'),
+			startTime: '10:00',
+			endTime: '11:00',
+			type: AppointmentType.CONSULTATION,
+			status: AppointmentStatus.SCHEDULED,
+			reason: 'Limpieza dental y revisión de encías',
+			notes: 'Propietario nota mal aliento y acumulación de sarro',
+		},
+		{
+			pet: savedPets[1], // Mishi
+			veterinarian: veterinarianUser,
+			appointmentDate: new Date('2024-12-03T16:00:00'),
+			startTime: '16:00',
+			endTime: '16:30',
+			type: AppointmentType.FOLLOW_UP,
+			status: AppointmentStatus.SCHEDULED,
+			reason: 'Control post-operatorio de esterilización',
+			notes: 'Revisión de herida quirúrgica y retiro de puntos',
+		},
+	].map((data) => AppDataSource.manager.create(Appointment, data));
+
+	const savedAppointments = await AppDataSource.manager.save(appointments);
+	
+	console.log(`Creados ${savedSchedules.length} horarios de veterinarios`);
+	console.log(`Creadas ${savedAppointments.length} citas médicas`);
 
 	console.log('Seed completo');
 	await AppDataSource.destroy();
