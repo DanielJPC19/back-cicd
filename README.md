@@ -14,6 +14,7 @@ JWT_EXPIRES_IN=1h
 
 ```
 
+> Para ver el informe, puedes dirigirte al archivo INFORME_API_VETERINARIA.md o dirigiendote a este enlace: [Informe](https://github.com/Computacion-3/taller-nest-hyprlandts/blob/main/INFORME_API_VETERINARIA.md)
 
 <p align="center">
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
