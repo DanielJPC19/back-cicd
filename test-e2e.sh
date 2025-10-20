@@ -13,7 +13,6 @@ echo "Waiting for database to be ready..."
 sleep 5
 
 echo "Seeding database..."
-cp .env.test .env 2>/dev/null || echo "Using existing .env file"
 npm run seed
 
 echo "Running e2e tests..."
