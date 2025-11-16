@@ -108,8 +108,8 @@ describe('MedicalRecord Entity', () => {
 		expect(medicalRecord.weight).toBe(12.75);
 		expect(medicalRecord.size).toBe(PetSize.SMALL);
     
-		medicalRecord.size = PetSize.EXTRA_LARGE;
-		expect(medicalRecord.size).toBe(PetSize.EXTRA_LARGE);
+		medicalRecord.size = PetSize.LARGE;
+		expect(medicalRecord.size).toBe(PetSize.LARGE);
 	});
 
 	it('should handle isDeleted flag', () => {

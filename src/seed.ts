@@ -31,17 +31,22 @@ const AppDataSource = new DataSource({
 	password: process.env.DB_PASSWORD || 'root',
 	database: process.env.DB_DATABASE || 'vet',
 	entities: [__dirname + '/**/*.entity{.ts,.js}'],
-	synchronize: true,
+	synchronize: false,
 	namingStrategy: new SnakeNamingStrategy(),
 });
 
 async function seed() {
 	await AppDataSource.initialize();
 
-	console.log('Limpiando tablas...');
-	// Nota: Agregar appointments y schedules cuando se implementen las entidades
-	await AppDataSource.query('TRUNCATE TABLE diagnostics, medical_records, pets, species, diagnostic_types, roles_permissions, users, roles, permissions RESTART IDENTITY CASCADE');
-	// await AppDataSource.query('TRUNCATE TABLE diagnostics, medical_records, pets, species, diagnostic_types, appointments, schedules, roles_permissions, users, roles, permissions RESTART IDENTITY CASCADE');
+	console.log('Eliminando todas las tablas y enums...');
+	const queryRunner = AppDataSource.createQueryRunner();
+	await queryRunner.connect();
+	await queryRunner.query('DROP SCHEMA public CASCADE');
+	await queryRunner.query('CREATE SCHEMA public');
+	await queryRunner.release();
+	
+	console.log('Sincronizando el esquema con nuevos valores...');
+	await AppDataSource.synchronize();
 
 	console.log('Creando roles...');
 	const adminRole = AppDataSource.manager.create(Role, {
@@ -101,7 +106,7 @@ async function seed() {
 
 	// USUARIO/PROPIETARIO: SOLO LECTURA - únicamente sus mascotas, registros médicos y citas
 	userRole.permissions = allPermissions.filter((p) =>
-		['user_read','pet_read', 'medical_record_read', 'appointment_read'].includes(p.permissionName)
+		['user_read','pet_read', 'medical_record_read', 'diagnostic_read', 'appointment_read', 'READ_SPECIES', 'READ_DIAGNOSTIC_TYPE'].includes(p.permissionName)
 	);
 
 	await AppDataSource.manager.save([adminRole, veterinarianRole, userRole]);

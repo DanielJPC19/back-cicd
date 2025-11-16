@@ -296,7 +296,7 @@ describe('Clinic (e2e)', () => {
 				const createDto = {
 					openingDate: '2024-01-15',
 					weight: 25.5,
-					size: 'medium',
+					size: 'mediano',
 					allergies: 'None known',
 					medications: 'None',
 					vaccinationStatus: 'Up to date',

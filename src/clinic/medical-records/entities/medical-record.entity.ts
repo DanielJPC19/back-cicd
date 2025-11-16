@@ -4,10 +4,9 @@ import { Diagnostic } from '../../diagnostics/entities/diagnostic.entity';
 import { Pet } from '../../pets/entities/pet.entity';
 
 export enum PetSize {
-	SMALL = 'small',
-	MEDIUM = 'medium', 
-	LARGE = 'large',
-	EXTRA_LARGE = 'extra_large'
+	SMALL = 'pequeño',
+	MEDIUM = 'mediano', 
+	LARGE = 'grande'
 }
 
 @Entity('medical_records')
