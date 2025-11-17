@@ -96,7 +96,7 @@ async function seed() {
 
 	// VETERINARIO: Solo funciones médicas + gestión de citas y horarios
 	veterinarianRole.permissions = allPermissions.filter((p) =>
-		['user_read','pet_read', 'pet_update',
+		['user_read','user_update','pet_read', 'pet_update',
 		 'medical_record_create', 'medical_record_read', 'medical_record_update', 'medical_record_delete',
 		 'diagnostic_create', 'diagnostic_read', 'diagnostic_update', 'diagnostic_delete',
 		 'appointment_create', 'appointment_read', 'appointment_update', 'appointment_delete', 'appointment_cancel',
@@ -106,7 +106,7 @@ async function seed() {
 
 	// USUARIO/PROPIETARIO: SOLO LECTURA - únicamente sus mascotas, registros médicos y citas
 	userRole.permissions = allPermissions.filter((p) =>
-		['user_read','pet_read', 'medical_record_read', 'diagnostic_read', 'appointment_read', 'READ_SPECIES', 'READ_DIAGNOSTIC_TYPE'].includes(p.permissionName)
+		['user_read','user_update','pet_read', 'medical_record_read', 'diagnostic_read', 'appointment_read', 'READ_SPECIES', 'READ_DIAGNOSTIC_TYPE'].includes(p.permissionName)
 	);
 
 	await AppDataSource.manager.save([adminRole, veterinarianRole, userRole]);
