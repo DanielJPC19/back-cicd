@@ -13,11 +13,28 @@ export class SpeciesService {
 		private readonly speciesRepository: Repository<Species>,
 	) {}
 
+	private normalizeText(text: string): string {
+		if (!text) return '';
+		return text
+			.toLowerCase()
+			.normalize('NFD')
+			.replace(/[\u0300-\u036f]/g, '')
+			.trim();
+	}
+
 	async create(createSpeciesDto: CreateSpeciesDto): Promise<Species> {
-		// Verificar si ya existe una especie con el mismo nombre
-		const existingSpecies = await this.speciesRepository.findOne({
-			where: { name: createSpeciesDto.name }
-		});
+		// Verificar que el nombre no esté vacío
+		if (!createSpeciesDto.name || createSpeciesDto.name.trim() === '') {
+			throw new SpeciesConflictException('El nombre es requerido');
+		}
+
+		// Verificar si ya existe una especie con el mismo nombre (case-insensitive, sin tildes)
+		const normalizedName = this.normalizeText(createSpeciesDto.name);
+		const allSpecies = await this.speciesRepository.find();
+		
+		const existingSpecies = allSpecies.find(
+			s => this.normalizeText(s.name) === normalizedName
+		);
 		
 		if (existingSpecies) {
 			throw new SpeciesConflictException(createSpeciesDto.name);
@@ -49,11 +66,14 @@ export class SpeciesService {
 	async update(id: number, updateSpeciesDto: UpdateSpeciesDto): Promise<Species> {
 		// Verificar si existe otra especie con el mismo nombre (si se está actualizando)
 		if (updateSpeciesDto.name) {
-			const existingSpecies = await this.speciesRepository.findOne({
-				where: { name: updateSpeciesDto.name }
-			});
+			const normalizedName = this.normalizeText(updateSpeciesDto.name);
+			const allSpecies = await this.speciesRepository.find();
 			
-			if (existingSpecies && existingSpecies.id !== id) {
+			const existingSpecies = allSpecies.find(
+				s => this.normalizeText(s.name) === normalizedName && s.id !== id
+			);
+			
+			if (existingSpecies) {
 				throw new SpeciesConflictException(updateSpeciesDto.name);
 			}
 		}

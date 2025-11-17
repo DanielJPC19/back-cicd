@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { MedicalRecordNotFoundException } from '../../common/exceptions';
+import { MedicalRecordConflictException, MedicalRecordNotFoundException } from '../../common/exceptions';
 import { UsersService } from '../../core/auth/users/users.service';
 import { PetsService } from '../pets/pets.service';
 import { CreateMedicalRecordDto } from './dto/create-medical-record.dto';
@@ -21,6 +21,15 @@ export class MedicalRecordsService {
 	async create(createMedicalRecordDto: CreateMedicalRecordDto): Promise<MedicalRecord> {
 		// Verificar que la mascota existe
 		const pet = await this.petsService.findOne(createMedicalRecordDto.petId);
+		
+		// Verificar que la mascota no tenga ya un registro médico
+		const existingRecord = await this.medicalRecordRepository.findOne({
+			where: { pet: { id: createMedicalRecordDto.petId } }
+		});
+		
+		if (existingRecord) {
+			throw new MedicalRecordConflictException(createMedicalRecordDto.petId);
+		}
 		
 		// Verificar que el veterinario existe
 		const veterinarian = await this.usersService.findOne(createMedicalRecordDto.veterinarianId);

@@ -13,11 +13,23 @@ export class DiagnosticTypesService {
 		private readonly diagnosticTypeRepository: Repository<DiagnosticType>,
 	) {}
 
+	private normalizeText(text: string): string {
+		if (!text) return '';
+		return text
+			.toLowerCase()
+			.normalize('NFD')
+			.replace(/[\u0300-\u036f]/g, '')
+			.trim();
+	}
+
 	async create(createDiagnosticTypeDto: CreateDiagnosticTypeDto): Promise<DiagnosticType> {
-		// Verificar si ya existe un tipo con el mismo nombre
-		const existingType = await this.diagnosticTypeRepository.findOne({
-			where: { name: createDiagnosticTypeDto.name }
-		});
+		// Verificar si ya existe un tipo con el mismo nombre (case-insensitive, sin tildes)
+		const normalizedName = this.normalizeText(createDiagnosticTypeDto.name);
+		const allTypes = await this.diagnosticTypeRepository.find();
+		
+		const existingType = allTypes.find(
+			t => this.normalizeText(t.name) === normalizedName
+		);
 		
 		if (existingType) {
 			throw new DiagnosticTypeConflictException(createDiagnosticTypeDto.name);
@@ -49,11 +61,14 @@ export class DiagnosticTypesService {
 	async update(id: number, updateDiagnosticTypeDto: UpdateDiagnosticTypeDto): Promise<DiagnosticType> {
 		// Verificar si existe otro tipo con el mismo nombre (si se está actualizando)
 		if (updateDiagnosticTypeDto.name) {
-			const existingType = await this.diagnosticTypeRepository.findOne({
-				where: { name: updateDiagnosticTypeDto.name }
-			});
+			const normalizedName = this.normalizeText(updateDiagnosticTypeDto.name);
+			const allTypes = await this.diagnosticTypeRepository.find();
 			
-			if (existingType && existingType.id !== id) {
+			const existingType = allTypes.find(
+				t => this.normalizeText(t.name) === normalizedName && t.id !== id
+			);
+			
+			if (existingType) {
 				throw new DiagnosticTypeConflictException(updateDiagnosticTypeDto.name);
 			}
 		}

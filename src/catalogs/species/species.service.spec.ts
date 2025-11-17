@@ -48,15 +48,13 @@ describe('SpeciesService', () => {
 
 			const mockSpecies = { id: 1, ...createSpeciesDto, isDeleted: false };
 
-			mockSpeciesRepository.findOne.mockResolvedValue(null);
+			mockSpeciesRepository.find.mockResolvedValue([]);
 			mockSpeciesRepository.create.mockReturnValue(mockSpecies);
 			mockSpeciesRepository.save.mockResolvedValue(mockSpecies);
 
 			const result = await service.create(createSpeciesDto);
 
-			expect(mockSpeciesRepository.findOne).toHaveBeenCalledWith({
-				where: { name: createSpeciesDto.name },
-			});
+			expect(mockSpeciesRepository.find).toHaveBeenCalled();
 			expect(mockSpeciesRepository.create).toHaveBeenCalledWith(createSpeciesDto);
 			expect(mockSpeciesRepository.save).toHaveBeenCalledWith(mockSpecies);
 			expect(result).toEqual(mockSpecies);
@@ -68,13 +66,11 @@ describe('SpeciesService', () => {
 				description: 'Mamífero doméstico',
 			};
 
-			const existingSpecies = { id: 1, ...createSpeciesDto };
-			mockSpeciesRepository.findOne.mockResolvedValue(existingSpecies);
+			const existingSpecies = { id: 1, name: 'perro', description: 'Existente' };
+			mockSpeciesRepository.find.mockResolvedValue([existingSpecies]);
 
 			await expect(service.create(createSpeciesDto)).rejects.toThrow(SpeciesConflictException);
-			expect(mockSpeciesRepository.findOne).toHaveBeenCalledWith({
-				where: { name: createSpeciesDto.name },
-			});
+			expect(mockSpeciesRepository.find).toHaveBeenCalled();
 			expect(mockSpeciesRepository.create).not.toHaveBeenCalled();
 		});
 	});
@@ -133,18 +129,14 @@ describe('SpeciesService', () => {
 			const existingSpecies = { id: 1, name: 'Perro', description: 'Original' };
 			const updatedSpecies = { ...existingSpecies, ...updateSpeciesDto };
 
-			// Name conflict check (returns null = no conflict)
-			mockSpeciesRepository.findOne
-				.mockResolvedValueOnce(null) // First call for name conflict check
-				.mockResolvedValueOnce(updatedSpecies); // Second call for returning updated (findOne at the end)
-
+			// Name conflict check (returns empty array = no conflict)
+			mockSpeciesRepository.find.mockResolvedValue([]);
 			mockSpeciesRepository.update.mockResolvedValue({ affected: 1 });
+			mockSpeciesRepository.findOne.mockResolvedValue(updatedSpecies);
 
 			const result = await service.update(1, updateSpeciesDto);
 
-			expect(mockSpeciesRepository.findOne).toHaveBeenNthCalledWith(1, {
-				where: { name: updateSpeciesDto.name },
-			});
+			expect(mockSpeciesRepository.find).toHaveBeenCalled();
 			expect(mockSpeciesRepository.update).toHaveBeenCalledWith(1, updateSpeciesDto);
 			expect(result).toEqual(updatedSpecies);
 		});
@@ -152,7 +144,7 @@ describe('SpeciesService', () => {
 		it('should throw SpeciesNotFoundException when updating non-existent species', async () => {
 			const updateSpeciesDto: UpdateSpeciesDto = { name: 'New Name' };
 
-			mockSpeciesRepository.findOne.mockResolvedValue(null);
+			mockSpeciesRepository.find.mockResolvedValue([]);
 			mockSpeciesRepository.update.mockResolvedValue({ affected: 0 });
 
 			await expect(service.update(999, updateSpeciesDto)).rejects.toThrow(SpeciesNotFoundException);
@@ -161,14 +153,12 @@ describe('SpeciesService', () => {
 		it('should throw SpeciesConflictException when updating with existing name', async () => {
 			const updateSpeciesDto: UpdateSpeciesDto = { name: 'Existing Species' };
 
-			const existingSpecies = { id: 2, name: 'Existing Species' };
-			mockSpeciesRepository.findOne.mockResolvedValue(existingSpecies);
+			const existingSpecies = { id: 2, name: 'existing species' };
+			mockSpeciesRepository.find.mockResolvedValue([existingSpecies]);
 
 			await expect(service.update(1, updateSpeciesDto)).rejects.toThrow(SpeciesConflictException);
 			
-			expect(mockSpeciesRepository.findOne).toHaveBeenCalledWith({
-				where: { name: 'Existing Species' },
-			});
+			expect(mockSpeciesRepository.find).toHaveBeenCalled();
 		});
 	});
 

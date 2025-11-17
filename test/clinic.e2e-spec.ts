@@ -331,6 +331,26 @@ describe('Clinic (e2e)', () => {
 					.send(createDto)
 					.expect(403);
 			});
+
+			it('should return 409 when trying to create duplicate medical record for same pet', async () => {
+				const server = app.getHttpServer() as Express;
+				const createDto = {
+					openingDate: '2024-01-16',
+					weight: 30.0,
+					size: 'grande',
+					allergies: 'None',
+					medications: 'None',
+					vaccinationStatus: 'Current',
+					petId: petId,
+					veterinarianId: 2
+				};
+
+				await request(server)
+					.post('/medical-records')
+					.set('Authorization', `Bearer ${veterinarianToken}`)
+					.send(createDto)
+					.expect(409);
+			});
 		});
 
 		describe('/medical-records (GET) - Get All Medical Records', () => {

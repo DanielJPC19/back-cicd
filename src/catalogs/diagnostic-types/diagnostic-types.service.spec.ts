@@ -47,15 +47,13 @@ describe('DiagnosticTypesService', () => {
 
 			const mockDiagnosticType = { id: 1, ...createDiagnosticTypeDto, isDeleted: false };
 
-			mockDiagnosticTypeRepository.findOne.mockResolvedValue(null);
+			mockDiagnosticTypeRepository.find.mockResolvedValue([]);
 			mockDiagnosticTypeRepository.create.mockReturnValue(mockDiagnosticType);
 			mockDiagnosticTypeRepository.save.mockResolvedValue(mockDiagnosticType);
 
 			const result = await service.create(createDiagnosticTypeDto);
 
-			expect(mockDiagnosticTypeRepository.findOne).toHaveBeenCalledWith({
-				where: { name: createDiagnosticTypeDto.name },
-			});
+			expect(mockDiagnosticTypeRepository.find).toHaveBeenCalled();
 			expect(mockDiagnosticTypeRepository.create).toHaveBeenCalledWith(createDiagnosticTypeDto);
 			expect(mockDiagnosticTypeRepository.save).toHaveBeenCalledWith(mockDiagnosticType);
 			expect(result).toEqual(mockDiagnosticType);
@@ -66,13 +64,11 @@ describe('DiagnosticTypesService', () => {
 				name: 'Radiografía',
 			};
 
-			const existingDiagnosticType = { id: 1, ...createDiagnosticTypeDto };
-			mockDiagnosticTypeRepository.findOne.mockResolvedValue(existingDiagnosticType);
+			const existingDiagnosticType = { id: 1, name: 'radiografia' };
+			mockDiagnosticTypeRepository.find.mockResolvedValue([existingDiagnosticType]);
 
 			await expect(service.create(createDiagnosticTypeDto)).rejects.toThrow(DiagnosticTypeConflictException);
-			expect(mockDiagnosticTypeRepository.findOne).toHaveBeenCalledWith({
-				where: { name: createDiagnosticTypeDto.name },
-			});
+			expect(mockDiagnosticTypeRepository.find).toHaveBeenCalled();
 			expect(mockDiagnosticTypeRepository.create).not.toHaveBeenCalled();
 		});
 	});
@@ -130,18 +126,14 @@ describe('DiagnosticTypesService', () => {
 			const existingDiagnosticType = { id: 1, name: 'Radiografía' };
 			const updatedDiagnosticType = { ...existingDiagnosticType, ...updateDiagnosticTypeDto };
 
-			// Name conflict check (returns null = no conflict)
-			mockDiagnosticTypeRepository.findOne
-				.mockResolvedValueOnce(null) // First call for name conflict check
-				.mockResolvedValueOnce(updatedDiagnosticType); // Second call for returning updated (findOne at the end)
-
+			// Name conflict check (returns empty array = no conflict)
+			mockDiagnosticTypeRepository.find.mockResolvedValue([]);
 			mockDiagnosticTypeRepository.update.mockResolvedValue({ affected: 1 });
+			mockDiagnosticTypeRepository.findOne.mockResolvedValue(updatedDiagnosticType);
 
 			const result = await service.update(1, updateDiagnosticTypeDto);
 
-			expect(mockDiagnosticTypeRepository.findOne).toHaveBeenNthCalledWith(1, {
-				where: { name: updateDiagnosticTypeDto.name },
-			});
+			expect(mockDiagnosticTypeRepository.find).toHaveBeenCalled();
 			expect(mockDiagnosticTypeRepository.update).toHaveBeenCalledWith(1, updateDiagnosticTypeDto);
 			expect(result).toEqual(updatedDiagnosticType);
 		});
@@ -149,7 +141,7 @@ describe('DiagnosticTypesService', () => {
 		it('should throw DiagnosticTypeNotFoundException when updating non-existent diagnostic type', async () => {
 			const updateDiagnosticTypeDto: UpdateDiagnosticTypeDto = { name: 'New Name' };
 
-			mockDiagnosticTypeRepository.findOne.mockResolvedValue(null);
+			mockDiagnosticTypeRepository.find.mockResolvedValue([]);
 			mockDiagnosticTypeRepository.update.mockResolvedValue({ affected: 0 });
 
 			await expect(service.update(999, updateDiagnosticTypeDto)).rejects.toThrow(DiagnosticTypeNotFoundException);
@@ -158,14 +150,12 @@ describe('DiagnosticTypesService', () => {
 		it('should throw DiagnosticTypeConflictException when updating with existing name', async () => {
 			const updateDiagnosticTypeDto: UpdateDiagnosticTypeDto = { name: 'Existing Name' };
 
-			const existingType = { id: 2, name: 'Existing Name' };
-			mockDiagnosticTypeRepository.findOne.mockResolvedValue(existingType);
+			const existingType = { id: 2, name: 'existing name' };
+			mockDiagnosticTypeRepository.find.mockResolvedValue([existingType]);
 
 			await expect(service.update(1, updateDiagnosticTypeDto)).rejects.toThrow(DiagnosticTypeConflictException);
 			
-			expect(mockDiagnosticTypeRepository.findOne).toHaveBeenCalledWith({
-				where: { name: 'Existing Name' },
-			});
+			expect(mockDiagnosticTypeRepository.find).toHaveBeenCalled();
 		});
 	});
 
