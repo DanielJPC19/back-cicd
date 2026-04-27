@@ -12,8 +12,10 @@ pipeline {
                     echo "Build triggered by: ${env.BRANCH_NAME}"
                     echo "Change target branch: ${env.CHANGE_TARGET}"
 
-                    if (env.BRANCH_NAME == 'main' || (env.CHANGE_TARGET == 'main' && env.CHANGE_ID != null)) {
-                        error "Build can only be triggered from the 'main' branch or as a pull request to 'main'. Current branch: ${env.BRANCH_NAME}, Change target: ${env.CHANGE_TARGET}"
+                    if (env.BRANCH_NAME == 'main' || env.CHANGE_TARGET == 'main') {
+                        echo 'Trigger is valid. Proceeding with the pipeline...'
+                    } else {
+                        error('Trigger is not valid. Pipeline will be aborted.')
                     }
                 }
             }
