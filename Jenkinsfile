@@ -1,5 +1,3 @@
-groovy
-
 pipeline {
     environment {
         IMAGE_NAME = 'compunet3-back'
