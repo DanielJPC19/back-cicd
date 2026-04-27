@@ -21,32 +21,21 @@ pipeline {
                 checkout scm
             }
         }
-        stage('Validate Trigger') {
+        stage('Validate Branch') {
             steps {
-                echo 'Validating trigger...'
                 script {
+                    def branch = sh(
+                        script: 'git rev-parse --abbrev-ref HEAD',
+                        returnStdout: true
+                    ).trim()
 
-                    def branch = env.BRANCH_NAME
-                    def target = env.CHANGE_TARGET
+                    echo "Current branch: ${branch}"
 
-                    if (!branch || branch == null) {
-                        branch = sh(script: 'git rev-parse --abrev-ref HEAD', returnStdout: true).trim()
+                    if (branch != 'main') {
+                        error("Build aborted: this job only runs on 'main', current branch is '${branch}'.")
                     }
-                    if (!target || target == null) {
-                        target = sh(script: 'git rev-parse --abrev-ref HEAD', returnStdout: true).trim()
-                    }
 
-                    echo "Build triggered by: ${branch}"
-                    echo "Change target branch: ${target}"
-
-                    def isMain = branch == 'main'
-                    def isPRToMain = target == 'main'
-
-                    if (isMain || isPRToMain) {
-                        echo 'Trigger is valid. Proceeding with the pipeline...'
-                    } else {
-                        error('Trigger is not valid. Pipeline will be aborted.')
-                    }
+                    echo 'Branch is main. Proceeding...'
                 }
             }
         }
@@ -74,9 +63,6 @@ pipeline {
         }
         stage('Deploy') {
             // Deploy the application
-            when {
-                branch 'main'
-            }
             steps {
                 echo 'Deploying the application...'
                 sh 'docker compose down'
