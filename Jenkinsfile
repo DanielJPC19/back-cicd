@@ -8,7 +8,7 @@ pipeline {
         stage('Load Env') {
             steps {
                 echo 'Loading environment variables...'
-                withCredentials([file(credentialsId: 'compunet3-env', variable: 'ENV_FILE')]) {
+                withCredentials([file(credentialsId: '4d765e2f-7e6c-4246-bb9e-5ab6e3d4fd3a', variable: 'ENV_FILE')]) {
                     sh 'cp $ENV_FILE .env'
                     sh 'cat .env | wc -l' // Verify that the .env file has been loaded
                 }
