@@ -5,6 +5,22 @@ pipeline {
     agent { label 'node docker nestjs' }
 
     stages {
+        stage('Validate Trigger') {
+            steps {
+                echo 'Validating trigger...'
+                script {
+                    echo 'Build triggered by: ${env.BRANCH_NAME}'
+                    echo 'Change target branch: ${env.CHANGE_TARGET}'
+
+                    def isMainBranch = env.BRANCH_NAME == 'main'
+                    def isPRToMain = env.CHANGE_TARGET == 'main'
+
+                    if (!isMainBranch && !isPRToMain) {
+                        error "Build can only be triggered from the 'main' branch or as a pull request to 'main'. Current branch: ${env.BRANCH_NAME}, Change target: ${env.CHANGE_TARGET}"
+                    }
+                }
+            }
+        }
         stage('Load Env') {
             steps {
                 echo 'Loading environment variables...'
@@ -45,6 +61,9 @@ pipeline {
         }
         stage('Deploy') {
             // Deploy the application
+            when {
+                branch 'main'
+            }
             steps {
                 echo 'Deploying the application...'
                 sh 'docker compose down'
