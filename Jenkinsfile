@@ -12,10 +12,7 @@ pipeline {
                     echo "Build triggered by: ${env.BRANCH_NAME}"
                     echo "Change target branch: ${env.CHANGE_TARGET}"
 
-                    def isMainBranch = env.BRANCH_NAME == 'main'
-                    def isPRToMain = env.CHANGE_TARGET == 'main'
-
-                    if (!isMainBranch && !isPRToMain) {
+                    if (env.BRANCH_NAME == 'main' || (env.CHANGE_TARGET == 'main' && env.CHANGE_ID != null)) {
                         error "Build can only be triggered from the 'main' branch or as a pull request to 'main'. Current branch: ${env.BRANCH_NAME}, Change target: ${env.CHANGE_TARGET}"
                     }
                 }
