@@ -5,21 +5,6 @@ pipeline {
     agent { label 'node docker nestjs' }
 
     stages {
-        stage('Validate Trigger') {
-            steps {
-                echo 'Validating trigger...'
-                script {
-                    echo "Build triggered by: ${env.BRANCH_NAME}"
-                    echo "Change target branch: ${env.CHANGE_TARGET}"
-
-                    if (env.BRANCH_NAME == 'main' || env.CHANGE_TARGET == 'main') {
-                        echo 'Trigger is valid. Proceeding with the pipeline...'
-                    } else {
-                        error('Trigger is not valid. Pipeline will be aborted.')
-                    }
-                }
-            }
-        }
         stage('Load Env') {
             steps {
                 echo 'Loading environment variables...'
@@ -34,6 +19,21 @@ pipeline {
             steps {
                 echo 'Checking out code from repository...'
                 checkout scm
+            }
+        }
+        stage('Validate Trigger') {
+            steps {
+                echo 'Validating trigger...'
+                script {
+                    echo "Build triggered by: ${env.BRANCH_NAME}"
+                    echo "Change target branch: ${env.CHANGE_TARGET}"
+
+                    if (env.BRANCH_NAME == 'main' || env.CHANGE_TARGET == 'main') {
+                        echo 'Trigger is valid. Proceeding with the pipeline...'
+                    } else {
+                        error('Trigger is not valid. Pipeline will be aborted.')
+                    }
+                }
             }
         }
         stage('Build') {
