@@ -5,6 +5,15 @@ pipeline {
     agent { label 'node docker nestjs' }
 
     stages {
+        stage('Load Env') {
+            steps {
+                echo 'Loading environment variables...'
+                withCredentials([file(credentialsId: 'compunet3-env', variable: 'ENV_FILE')]) {
+                    sh 'cp $ENV_FILE .env'
+                    sh 'cat .env | wc -l' // Verify that the .env file has been loaded
+                }
+            }
+        }
         stage('Checkout') {
             // Checkout code from repository
             steps {
