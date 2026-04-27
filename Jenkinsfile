@@ -30,10 +30,10 @@ pipeline {
                     def target = env.CHANGE_TARGET
 
                     if (!branch || branch == null) {
-                        branch = sh (script: 'git rev-parse --abrev-ref HEAD', returnStdout: true).trim()
+                        branch = sh(script: 'git rev-parse --abrev-ref HEAD', returnStdout: true).trim()
                     }
                     if (!target || target == null) {
-                        target = sh (script: 'git rev-parse --abrev-ref HEAD', returnStdout: true).trim()
+                        target = sh(script: 'git rev-parse --abrev-ref HEAD', returnStdout: true).trim()
                     }
 
                     echo "Build triggered by: ${branch}"
