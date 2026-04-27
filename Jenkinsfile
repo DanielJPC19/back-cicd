@@ -9,7 +9,7 @@ pipeline {
             // Checkout code from repository
             steps {
                 echo 'Checking out code from repository...'
-                git 'https://github.com/DanielJPC19/compunet3-back.git'
+                checkout scm
             }
         }
         stage('Build') {
