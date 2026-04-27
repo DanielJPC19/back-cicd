@@ -9,8 +9,8 @@ pipeline {
             steps {
                 echo 'Validating trigger...'
                 script {
-                    echo 'Build triggered by: ${env.BRANCH_NAME}'
-                    echo 'Change target branch: ${env.CHANGE_TARGET}'
+                    echo "Build triggered by: ${env.BRANCH_NAME}"
+                    echo "Change target branch: ${env.CHANGE_TARGET}"
 
                     def isMainBranch = env.BRANCH_NAME == 'main'
                     def isPRToMain = env.CHANGE_TARGET == 'main'
