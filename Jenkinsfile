@@ -2,7 +2,7 @@ pipeline {
     environment {
         IMAGE_NAME = 'compunet3-back'
     }
-    agent any
+    agent { label 'node docker nestjs' }
 
     stages {
         stage('Checkout') {
