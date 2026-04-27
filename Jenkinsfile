@@ -25,10 +25,24 @@ pipeline {
             steps {
                 echo 'Validating trigger...'
                 script {
-                    echo "Build triggered by: ${env.BRANCH_NAME}"
-                    echo "Change target branch: ${env.CHANGE_TARGET}"
 
-                    if (env.BRANCH_NAME == 'main' || env.CHANGE_TARGET == 'main') {
+                    def branch = env.BRANCH_NAME
+                    def target = env.CHANGE_TARGET
+
+                    if (!branch || branch == null) {
+                        branch = sh (script: 'git rev-parse --abrev-ref HEAD', returnStdout: true).trim()
+                    }
+                    if (!target || target == null) {
+                        target = sh (script: 'git rev-parse --abrev-ref HEAD', returnStdout: true).trim()
+                    }
+
+                    echo "Build triggered by: ${branch}"
+                    echo "Change target branch: ${target}"
+
+                    def isMain = branch == 'main'
+                    def isPRToMain = target == 'main'
+
+                    if (isMain || isPRToMain) {
                         echo 'Trigger is valid. Proceeding with the pipeline...'
                     } else {
                         error('Trigger is not valid. Pipeline will be aborted.')
