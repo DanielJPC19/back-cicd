@@ -31,7 +31,7 @@ pipeline {
 
                     echo "Current branch: ${branch}"
 
-                    if (branch != 'main') {
+                    if (branch != 'main' && branch != 'HEAD') {
                         error("Build aborted: this job only runs on 'main', current branch is '${branch}'.")
                     }
 
