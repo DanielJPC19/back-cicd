@@ -54,7 +54,7 @@ pipeline {
                 sh 'npm run test:cov'
             }
         }
-        stage('SonarQube Analysis') {
+        stage('Static Analysis (SonarQube)') {
             // Static code analysis with quality gate
             steps {
                 echo 'Running SonarQube analysis...'
