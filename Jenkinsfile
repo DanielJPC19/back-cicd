@@ -58,11 +58,12 @@ pipeline {
             // Static code analysis with quality gate
             steps {
                 echo 'Running SonarQube analysis...'
-                script {
+
+                withSonarQubeEnv('SonarQube') {
                     sh '''
                         npx sonar-scanner \
                             -Dsonar.projectKey=compunet3-back \
-                            -Dsonar.host.url=http://localhost:9000 
+                            -Dsonar.host.url=http://localhost:9000
                     '''
 
                     // Check for Security Hotspots
@@ -77,7 +78,7 @@ pipeline {
                     if (hotspots.toInteger() > 0) {
                         error("SonarQube found ${hotspots} Security Hotspot(s). Please review and fix them before deploying.")
                     } else {
-                        echo "No Security Hotspots found. ✓"
+                        echo "No Security Hotspots found. Proceeding..."
                     }
                 }
             }
