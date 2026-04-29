@@ -58,30 +58,32 @@ pipeline {
             // Static code analysis with quality gate
             steps {
                 echo 'Running SonarQube analysis...'
-                script {
-                    sh '''
-                        npx sonar-scanner \
-                            -Dsonar.projectKey=compunet3-back \
-                            -Dsonar.sources=src \
-                            -Dsonar.host.url=http://localhost:9000 \
-                            -Dsonar.login=sqa_e62de8ebd5f6f036665ae690a921591c62fbdee8
-                    '''
+                withSonarQubeEnv('SonarQube') {
 
-                    // Check for Security Hotspots
-                    echo 'Checking for Security Hotspots...'
-                    def hotspotsResponse = sh(
-                        script: '''
-                            curl -s "http://localhost:9000/api/hotspots/search?projectKey=compunet3-back&status=TO_REVIEW" | grep -o '"total":[0-9]*' | cut -d':' -f2
-                        ''',
-                        returnStdout: true
-                    ).trim()
+                    script {
+                        sh '''
+                            npx sonar-scanner \
+                                -Dsonar.projectKey=compunet3-back \
+                                -Dsonar.sources=src \
+                                -Dsonar.host.url=http://sonarqube:9000 \
+                        '''
 
-                    def hotspots = hotspotsResponse.isEmpty() ? 0 : hotspotsResponse.toInteger()
+                        // Check for Security Hotspots
+                        echo 'Checking for Security Hotspots...'
+                        def hotspotsResponse = sh(
+                            script: '''
+                                curl -s "http://sonarqube:9000/api/hotspots/search?projectKey=compunet3-back&status=TO_REVIEW" | grep -o '"total":[0-9]*' | cut -d':' -f2
+                            ''',
+                            returnStdout: true
+                        ).trim()
 
-                    if (hotspots > 0) {
-                        error("SonarQube found ${hotspots} Security Hotspot(s). Please review and fix them before deploying.")
-                    } else {
-                        echo "No Security Hotspots found. ✓"
+                        def hotspots = hotspotsResponse.isEmpty() ? 0 : hotspotsResponse.toInteger()
+
+                        if (hotspots > 0) {
+                            error("SonarQube found ${hotspots} Security Hotspot(s). Please review and fix them before deploying.")
+                        } else {
+                            echo "No Security Hotspots found. Proceeding with deployment..."
+                        }
                     }
                 }
             }
