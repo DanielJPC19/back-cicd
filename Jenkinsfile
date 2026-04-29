@@ -89,7 +89,7 @@ pipeline {
                 sh 'docker build -t ${IMAGE_NAME}:latest .'
             }
         }
-        stage('Trivy Security Scan') {
+        stage('Container Security Scan (Trivy)') {
             // Container security scan with quality gate
             steps {
                 echo 'Scanning Docker image for vulnerabilities...'
