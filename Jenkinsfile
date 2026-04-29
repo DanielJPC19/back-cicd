@@ -58,8 +58,8 @@ pipeline {
             steps {
                 echo 'Running SonarQube analysis...'
 
-                withSonarQubeEnv('sonarqube') {
-                    sh 'npx sonar-scanner -Dsonar.projectKey=compunet3-back -Dsonar.host.url=http://sonarqube:9009'
+                withSonarQubeEnv('SonarQube') {
+                    sh 'npx sonar-scanner -Dsonar.projectKey=compunet3-back -Dsonar.host.url=http://sonarqube:9000'
                 }
             }
         }
