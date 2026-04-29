@@ -54,15 +54,6 @@ pipeline {
                 sh 'npm run test:cov'
             }
         }
-        stage('Static Analysis (SonarQube)') {
-            steps {
-                echo 'Running SonarQube analysis...'
-
-                withSonarQubeEnv('SonarQube') {
-                    sh 'npx sonar-scanner -Dsonar.projectKey=compunet3-back -Dsonar.host.url=http://sonarqube:9000'
-                }
-            }
-        }
         stage('SonarQube Analysis') {
             // Static code analysis with quality gate
             steps {
@@ -71,9 +62,7 @@ pipeline {
                     sh '''
                         npx sonar-scanner \
                             -Dsonar.projectKey=compunet3-back \
-                            -Dsonar.sources=src \
-                            -Dsonar.host.url=http://localhost:9000 \
-                            -Dsonar.login=sqa_e62de8ebd5f6f036665ae690a921591c62fbdee8
+                            -Dsonar.host.url=http://localhost:9000 
                     '''
 
                     // Check for Security Hotspots
