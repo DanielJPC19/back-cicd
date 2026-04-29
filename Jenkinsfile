@@ -54,11 +54,55 @@ pipeline {
                 sh 'npm test'
             }
         }
+        stage('SonarQube Analysis') {
+            // Static code analysis with quality gate
+            steps {
+                echo 'Running SonarQube analysis...'
+                script {
+                    sh '''
+                        npx sonar-scanner \
+                            -Dsonar.projectKey=compunet3-back \
+                            -Dsonar.sources=src \
+                            -Dsonar.host.url=http://localhost:9000 \
+                            -Dsonar.login=sqa_e62de8ebd5f6f036665ae690a921591c62fbdee8
+                    '''
+
+                    // Check for Security Hotspots
+                    echo 'Checking for Security Hotspots...'
+                    def hotspots = sh(
+                        script: '''
+                            curl -s "http://localhost:9000/api/hotspots/search?projectKey=compunet3-back&status=TO_REVIEW" | grep -o '"total":[0-9]*' | head -1 | cut -d':' -f2
+                        ''',
+                        returnStdout: true
+                    ).trim()
+
+                    if (hotspots.toInteger() > 0) {
+                        error("SonarQube found ${hotspots} Security Hotspot(s). Please review and fix them before deploying.")
+                    } else {
+                        echo "No Security Hotspots found. ✓"
+                    }
+                }
+            }
+        }
         stage('Docker Build') {
             // Build Docker Image
             steps {
                 echo 'Building Docker image...'
                 sh 'docker build -t ${IMAGE_NAME}:latest .'
+            }
+        }
+        stage('Trivy Security Scan') {
+            // Container security scan with quality gate
+            steps {
+                echo 'Scanning Docker image for vulnerabilities...'
+                script {
+                    // First scan: report all vulnerabilities (exit-code 0)
+                    sh 'docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:latest image --exit-code 0 ${IMAGE_NAME}:latest'
+
+                    // Second scan: fail if CRITICAL vulnerabilities found (exit-code 1)
+                    echo 'Checking for CRITICAL vulnerabilities...'
+                    sh 'docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:latest image --exit-code 1 --severity CRITICAL ${IMAGE_NAME}:latest'
+                }
             }
         }
         stage('Deploy') {
@@ -73,12 +117,15 @@ pipeline {
 
     post {
         success {
-            echo 'Pipeline completed successfully!'
+            echo '✓ Pipeline completed successfully!'
+            sh 'docker image prune -f' // Clean unused Docker images
         }
         failure {
-            echo 'Pipeline failed. Please check the logs for details.'
+            echo '✗ Pipeline failed. Please check the logs for details.'
+            sh 'docker compose down || true' // Stop containers without failing
         }
         always {
+            echo 'Performing cleanup...'
             cleanWs() // Clean workspace after execution
             echo 'Pipeline execution finished.'
         }

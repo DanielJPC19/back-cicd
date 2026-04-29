@@ -1,5 +1,226 @@
 [![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/GsgP_xZE)
 
+---
+
+# CI/CD Pipeline Documentation
+
+## Overview
+This project uses a **Jenkins-based CI/CD pipeline** that automates testing, code quality analysis, security scanning, and deployment.
+
+## Prerequisites
+
+### Required Tools
+- **Docker** (for running Jenkins and SonarQube)
+- **Node.js** 18+
+- **npm** 9+
+- **Trivy** (Docker image available via `aquasec/trivy:latest`)
+- **SonarQube** (Docker container - community edition)
+
+### Jenkins Agent Requirements
+- Label: `node docker nestjs`
+- Must have Docker access
+- Must be able to run npm commands
+
+## Pipeline Stages
+
+The pipeline consists of the following stages:
+
+1. **Load Env** - Load environment variables from Jenkins credentials
+2. **Checkout** - Clone code from repository
+3. **Validate Branch** - Ensure only main branch is deployed
+4. **Build** - Install dependencies and compile TypeScript
+5. **Test** - Run unit tests
+6. **SonarQube Analysis** - ✅ Static code analysis & Security Hotspot detection
+7. **Docker Build** - Build Docker image
+8. **Trivy Security Scan** - ✅ Scan Docker image for vulnerabilities
+9. **Deploy** - Deploy to production using docker-compose
+
+## Quality Gates (Gatekeeping)
+
+The pipeline **FAILS** automatically if:
+
+### SonarQube
+- **Security Hotspots** detected (status: TO_REVIEW)
+  - Accessed via: `http://localhost:9000/projects/compunet3-back`
+  - Must be resolved before deployment
+
+### Trivy
+- **CRITICAL** vulnerabilities found in Docker image
+  - Only scans for CRITICAL severity
+  - Prevents deployment of unsafe containers
+
+## Setup Instructions
+
+### 1. Start SonarQube
+```bash
+docker run -d --name sonarqube -p 9000:9000 -p 9092:9092 sonarqube:community
+```
+
+**Initial Setup:**
+- Access: http://localhost:9000
+- Username: `admin`
+- Password: `admin`
+- Create a token in **My Account → Security → Tokens**
+
+### 2. Configure Jenkins
+
+Add these credentials in Jenkins:
+- **Type:** Secret text
+- **Secret:** Your SonarQube token
+- **ID:** `sonarqube-token` (or update in Jenkinsfile)
+
+### 3. Docker Build and Deployment
+
+Ensure `docker-compose.yml` is configured with:
+```yaml
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3000" # Adjust port as needed
+    environment:
+      - NODE_ENV=production
+```
+
+## Running the Pipeline Locally
+
+### 1. Build and Test
+```bash
+npm ci
+npm run build
+npm test
+```
+
+### 2. SonarQube Analysis
+```bash
+npx sonar-scanner \
+  -Dsonar.projectKey=compunet3-back \
+  -Dsonar.sources=src \
+  -Dsonar.host.url=http://localhost:9000 \
+  -Dsonar.login=YOUR_TOKEN
+```
+
+### 3. Docker Build
+```bash
+docker build -t compunet3-back:latest .
+```
+
+### 4. Trivy Scan
+```bash
+# Report all vulnerabilities
+docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:latest image compunet3-back:latest
+
+# Fail on CRITICAL only
+docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:latest image --exit-code 1 --severity CRITICAL compunet3-back:latest
+```
+
+### 5. Deploy
+```bash
+docker compose down
+docker compose up -d --build
+```
+
+## Cleanup
+
+The pipeline automatically:
+- **On Success:** Removes unused Docker images (`docker image prune -f`)
+- **On Failure:** Stops containers without failing the cleanup
+- **Always:** Cleans the Jenkins workspace
+
+## Troubleshooting
+
+### SonarQube Connection Timeout
+```
+Error: Connection refused at http://localhost:9000
+```
+**Solution:** Ensure SonarQube container is running
+```bash
+docker ps | grep sonarqube
+docker logs sonarqube
+```
+
+### Trivy Scanner Not Found
+```
+docker: command not found
+```
+**Solution:** Ensure Docker is running and accessible
+
+### Security Hotspots Blocking Deployment
+1. Review hotspots at: http://localhost:9000/security_hotspots
+2. Mark as "Safe" or fix the code
+3. Re-run the pipeline
+
+### CRITICAL Vulnerabilities
+1. Check Trivy report in Jenkins logs
+2. Update base image or vulnerable dependencies
+3. Example: If Node.js image has vulnerabilities, upgrade to latest LTS
+   ```dockerfile
+   FROM node:20-alpine  # Use latest LTS
+   ```
+
+## Environment Variables
+
+Required in `.env` file (from Jenkins credentials):
+```bash
+DB_HOST=localhost
+DB_TYPE=postgres
+DB_PORT=5432
+DB_USERNAME=root
+DB_PASSWORD=root
+DB_DATABASE=vet
+DB_SYNCHRONIZE=true
+JWT_SECRET=<your-secret>
+JWT_EXPIRES_IN=1h
+```
+
+## Pipeline Flow Diagram
+
+```
+┌─────────────────┐
+│   Load Env      │
+└────────┬────────┘
+         │
+┌────────▼────────┐
+│   Checkout      │
+└────────┬────────┘
+         │
+┌────────▼──────────────┐
+│ Validate Branch       │
+│ (only main allowed)   │
+└────────┬──────────────┘
+         │
+┌────────▼────────┐
+│   Build (npm)   │
+└────────┬────────┘
+         │
+┌────────▼────────┐
+│   Tests (npm)   │
+└────────┬────────┘
+         │
+┌────────▼───────────────────────────┐
+│ SonarQube Analysis (Quality Gate)   │
+│ ❌ FAILS if Security Hotspots found │
+└────────┬───────────────────────────┘
+         │
+┌────────▼──────────────┐
+│   Docker Build        │
+└────────┬──────────────┘
+         │
+┌────────▼─────────────────────────────┐
+│ Trivy Security Scan (Quality Gate)   │
+│ ❌ FAILS if CRITICAL vulns found     │
+└────────┬─────────────────────────────┘
+         │
+┌────────▼────────┐
+│    Deploy       │
+└────────┬────────┘
+         │
+    ✅ SUCCESS or ❌ FAILURE
+    └─ Cleanup & Prune
+```
+
+---
+
 Contenido del **.env**:
 ```bash
 DB_HOST =localhost
@@ -17,6 +238,7 @@ JWT_EXPIRES_IN=1h
 > Para ver el informe, puedes dirigirte al archivo INFORME_API_VETERINARIA.md o dirigiendote a este enlace: [Informe](https://github.com/Computacion-3/taller-nest-hyprlandts/blob/main/INFORME_API_VETERINARIA.md)
 
 > Para ver el video de deploy ve a [deploy](https://youtu.be/gOtUE5P9jSE)
+
 <p align="center">
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
 </p>
@@ -115,6 +337,3 @@ Nest is an MIT-licensed open source project. It can grow thanks to the sponsors 
 ## License
 
 Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
-
-
-
