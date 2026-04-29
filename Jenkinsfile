@@ -65,14 +65,14 @@ pipeline {
                         sh '''
                             npx sonar-scanner \
                                 -Dsonar.projectKey=compunet3-back \
-                                -Dsonar.host.url=http://localhost:9000
+                                -Dsonar.host.url=http://sonarqube:9000
                         '''
 
                         // Check for Security Hotspots
                         echo 'Checking for Security Hotspots...'
                         def hotspots = sh(
                             script: '''
-                                curl -s "http://localhost:9000/api/hotspots/search?projectKey=compunet3-back&status=TO_REVIEW" | grep -o '"total":[0-9]*' | head -1 | cut -d':' -f2
+                                curl -s "http://sonarqube:9000/api/hotspots/search?projectKey=compunet3-back&status=TO_REVIEW" | grep -o '"total":[0-9]*' | head -1 | cut -d':' -f2
                             ''',
                             returnStdout: true
                         ).trim()
