@@ -5,6 +5,13 @@ pipeline {
     agent { label 'node docker nestjs' }
 
     stages {
+        stage('Checkout') {
+            // Checkout code from repository
+            steps {
+                echo 'Checking out code from repository...'
+                checkout scm
+            }
+        }
         stage('Load Env') {
             steps {
                 echo 'Loading environment variables...'
@@ -12,13 +19,6 @@ pipeline {
                     sh 'cp $ENV_FILE .env'
                     sh 'cat .env | wc -l' // Verify that the .env file has been loaded
                 }
-            }
-        }
-        stage('Checkout') {
-            // Checkout code from repository
-            steps {
-                echo 'Checking out code from repository...'
-                checkout scm
             }
         }
         stage('Validate Branch') {
@@ -47,11 +47,20 @@ pipeline {
                 sh 'npm run build'
             }
         }
-        stage('Test') {
+        stage('Test + Coverage') {
             // Run tests
             steps {
                 echo 'Running tests...'
-                sh 'npm test'
+                sh 'npm run test:cov'
+            }
+        }
+        stage('Static Analysis (SonarQube)') {
+            steps {
+                echo 'Running SonarQube analysis...'
+
+                withSonarQubeEnv('sonarqube') {
+                    sh 'npx sonar-scanner -Dsonar.projectKey=compunet3-back -Dsonar.host.url=http://sonarqube:9009'
+                }
             }
         }
         stage('Docker Build') {
