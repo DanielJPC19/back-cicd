@@ -60,25 +60,28 @@ pipeline {
                 echo 'Running SonarQube analysis...'
 
                 withSonarQubeEnv('SonarQube') {
-                    sh '''
-                        npx sonar-scanner \
-                            -Dsonar.projectKey=compunet3-back \
-                            -Dsonar.host.url=http://localhost:9000
-                    '''
 
-                    // Check for Security Hotspots
-                    echo 'Checking for Security Hotspots...'
-                    def hotspots = sh(
-                        script: '''
-                            curl -s "http://localhost:9000/api/hotspots/search?projectKey=compunet3-back&status=TO_REVIEW" | grep -o '"total":[0-9]*' | head -1 | cut -d':' -f2
-                        ''',
-                        returnStdout: true
-                    ).trim()
+                    script {
+                        sh '''
+                            npx sonar-scanner \
+                                -Dsonar.projectKey=compunet3-back \
+                                -Dsonar.host.url=http://localhost:9000
+                        '''
 
-                    if (hotspots.toInteger() > 0) {
-                        error("SonarQube found ${hotspots} Security Hotspot(s). Please review and fix them before deploying.")
-                    } else {
-                        echo "No Security Hotspots found. Proceeding..."
+                        // Check for Security Hotspots
+                        echo 'Checking for Security Hotspots...'
+                        def hotspots = sh(
+                            script: '''
+                                curl -s "http://localhost:9000/api/hotspots/search?projectKey=compunet3-back&status=TO_REVIEW" | grep -o '"total":[0-9]*' | head -1 | cut -d':' -f2
+                            ''',
+                            returnStdout: true
+                        ).trim()
+
+                        if (hotspots.toInteger() > 0) {
+                            error("SonarQube found ${hotspots} Security Hotspot(s). Please review and fix them before deploying.")
+                        } else {
+                            echo "No Security Hotspots found. Proceeding..."
+                        }
                     }
                 }
             }
