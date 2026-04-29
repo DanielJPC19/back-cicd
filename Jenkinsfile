@@ -88,11 +88,12 @@ pipeline {
                 }
             }
         }
-        stage('Docker Build') {
+        stage('Docker Build and Scan (Trivy)') {
             // Build Docker Image
             steps {
                 echo 'Building Docker image...'
                 sh 'docker build -t ${IMAGE_NAME}:latest .'
+                sh 'trivy image ${IMAGE_NAME}:latest' // Optional: Run a quick scan after building the image
             }
         }
         stage('Container Security Scan (Trivy)') {
