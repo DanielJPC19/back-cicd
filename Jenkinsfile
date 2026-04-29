@@ -54,7 +54,7 @@ pipeline {
                 sh 'npm run test:cov'
             }
         }
-        stage('Static Analysis (SonarQube)') {
+        stage('SonarQube Analysis') {
             // Static code analysis with quality gate
             steps {
                 echo 'Running SonarQube analysis...'
@@ -62,7 +62,9 @@ pipeline {
                     sh '''
                         npx sonar-scanner \
                             -Dsonar.projectKey=compunet3-back \
-                            -Dsonar.host.url=http://localhost:9000 
+                            -Dsonar.sources=src \
+                            -Dsonar.host.url=http://localhost:9000 \
+                            -Dsonar.login=sqa_e62de8ebd5f6f036665ae690a921591c62fbdee8
                     '''
 
                     // Check for Security Hotspots
