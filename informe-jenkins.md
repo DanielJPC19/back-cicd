@@ -1,5 +1,10 @@
 # Ejercicio de Diseño y Construcción de Pipelines
 
+## Información de los Estudiantes
+
+- Angela Maria Gonzalez Cordoba - A00399435
+- Daniel Jose Plazas Cortes - A00400085
+
 ## Definición del Pipeline
 
 Para nuestro ejercicio, realizamos la definición de 11 etapas, siendo estas definidas en el siguiente archivo Jenkinsfile:
