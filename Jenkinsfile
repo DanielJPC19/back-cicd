@@ -67,14 +67,16 @@ pipeline {
 
                     // Check for Security Hotspots
                     echo 'Checking for Security Hotspots...'
-                    def hotspots = sh(
+                    def hotspotsResponse = sh(
                         script: '''
-                            curl -s "http://localhost:9000/api/hotspots/search?projectKey=compunet3-back&status=TO_REVIEW" | grep -o '"total":[0-9]*' | head -1 | cut -d':' -f2
+                            curl -s "http://localhost:9000/api/hotspots/search?projectKey=compunet3-back&status=TO_REVIEW" | grep -o '"total":[0-9]*' | cut -d':' -f2
                         ''',
                         returnStdout: true
                     ).trim()
 
-                    if (hotspots.toInteger() > 0) {
+                    def hotspots = hotspotsResponse.isEmpty() ? 0 : hotspotsResponse.toInteger()
+
+                    if (hotspots > 0) {
                         error("SonarQube found ${hotspots} Security Hotspot(s). Please review and fix them before deploying.")
                     } else {
                         echo "No Security Hotspots found. ✓"
