@@ -2,6 +2,8 @@
 
 ---
 
+Acceda al informe para esta entrega del pipeline con Jenkins, dirigiendo al archivo informe-jenkins.md.
+
 # CI/CD Pipeline Documentation
 
 ## Overview
@@ -162,14 +164,14 @@ docker: command not found
 
 Required in `.env` file (from Jenkins credentials):
 ```bash
-DB_HOST=localhost
-DB_TYPE=postgres
-DB_PORT=5432
-DB_USERNAME=root
-DB_PASSWORD=root
-DB_DATABASE=vet
+DB_HOST =db-postgres
+DB_TYPE =postgres
+DB_PORT = 5432
+DB_USERNAME = root
+DB_PASSWORD =root
+DB_DATABASE =vet
 DB_SYNCHRONIZE=true
-JWT_SECRET=<your-secret>
+JWT_SECRET=c2d8e47b1f73a9e24f58107cdb1a5c926e3f0d87f5a3d9278e65c4a0f19d8e4b
 JWT_EXPIRES_IN=1h
 ```
 
